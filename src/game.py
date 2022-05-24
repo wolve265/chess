@@ -2,10 +2,17 @@ import pygame
 
 from settings import Settings
 
+
 class Game:
+    screen = None
+    clock = None
 
     def __init__(self) -> None:
         pygame.init()
         pygame.display.set_caption(Settings.window_caption)
-        self.screen = pygame.display.set_mode((Settings.board_len, Settings.board_len))
+        self.screen = pygame.display.set_mode((Settings.window_len, Settings.window_len))
         self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, Settings.font_size)
+
+
+game = Game()
