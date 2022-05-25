@@ -2,6 +2,7 @@ import pygame
 
 from board.chessboard import Board
 from game import game
+from settings import Settings
 
 
 class Chess:
@@ -24,6 +25,6 @@ class Chess:
             self.board.draw(game.screen)
 
             pygame.display.update()
-            game.clock.tick(60)
+            game.clock.tick(Settings.fps)
 
         pygame.quit()

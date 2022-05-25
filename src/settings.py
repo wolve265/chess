@@ -12,7 +12,9 @@ class Settings:
     window_caption: str = 'Chess'
 
     # Params
-    rows = cols = 8
+    rows: int = 8
+    cols: int = 8
+    fps:  int = 30
 
     square_len: int = 80
     board_len:  int = rows * square_len
