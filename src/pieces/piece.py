@@ -24,6 +24,10 @@ class Piece(Square):
         self.image = self.get_image()
         self.rect = self.image.get_rect(center=self.full_rect.center)
 
+    def draw(self, surface: Surface) -> None:
+        # Ensures that Square.draw is overridden
+        pass
+
     def update(self, *args: Any, **kwargs: Any) -> None:
         return super().update(*args, **kwargs)
 
@@ -31,7 +35,6 @@ class Piece(Square):
         """
         Gets the sprite image according to piece name and color
         """
-
         # Loading image with both white and black piece
         name = self.__class__.__name__.lower()
         image_path = os.path.join(self.pieces_img_dir, f'{name}.png')

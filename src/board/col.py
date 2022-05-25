@@ -10,6 +10,10 @@ from settings import Settings
 
 
 class Col(Group):
+    """
+    Class representing the board column
+    """
+
     def __init__(self, col, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
         super().__init__(*sprites)
         self.col = col

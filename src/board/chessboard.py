@@ -13,15 +13,21 @@ from settings import Settings
 
 
 class Board(Group):
+    """
+    Class representing the chessboard
+    """
 
     def __init__(self, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
         self.squares: List[Square] = []
         self.pieces: List[Piece] = []
         self.rows: List[Row] = []
         self.cols: List[Col] = []
+        self.setup()
+        super().__init__(self.squares, self.pieces, *sprites)
+
+    def setup(self) -> None:
         self.gen_board()
         self.gen_pieces()
-        super().__init__(self.squares, self.pieces, *sprites)
 
     def draw(self, surface: Surface) -> List[Rect]:
         game.screen.fill(Settings.background_color)
@@ -36,6 +42,9 @@ class Board(Group):
         return super().update(*args, **kwargs)
 
     def gen_board(self) -> None:
+        """
+        Generates all board groups and sprites
+        """
         for i in range(Settings.rows):
             self.rows.append(Row(i))
             self.cols.append(Col(i))
@@ -44,5 +53,8 @@ class Board(Group):
                 self.squares.append(Square(row_i, col_i, self.rows[row_i], self.cols[col_i]))
 
     def gen_pieces(self) -> None:
+        """
+        Generates all pieces
+        """
         pieces_gen = Generator(self.rows, self.cols)
         self.pieces = pieces_gen.run()

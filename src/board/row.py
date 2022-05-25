@@ -10,6 +10,10 @@ from settings import Settings
 
 
 class Row(Group):
+    """
+    Class representing the board row
+    """
+
     def __init__(self, row, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
         super().__init__(*sprites)
         self.row = row
