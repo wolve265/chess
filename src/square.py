@@ -15,16 +15,15 @@ class Square(Sprite):
         self.col = col
         self.row_str = chr(self.row + ord('1'))
         self.col_str = chr(self.col + ord('a'))
-        self.full_rect = pygame.Rect((self.col*Settings.square_len, (Settings.rows-self.row-1)*Settings.square_len), (Settings.square_len, Settings.square_len))
-        self.image = game.font.render(f"{self.col_str}{self.row_str}", True, 'Red')
+        self.full_rect = pygame.Rect((self.col*Settings.square_len + Settings.border_len, (Settings.rows-self.row-1)*Settings.square_len + Settings.border_len), Settings.square_size)
+        self.image = game.font.render(f"", True, 'Red')
         self.rect = self.image.get_rect(center=self.full_rect.center)
 
     def __repr__(self) -> str:
-        return f'{super().__repr__()} | pos = ({self.row},{self.col})'
+        return f'\n{super().__repr__()} | pos = ({self.col_str},{self.row_str})'
 
     def draw(self, surface: Surface) -> None:
         fill_color = Settings.white_color if (self.row + self.col) % 2 else Settings.black_color
-        fill_color = 'Blue' if (self.row, self.col) == (0, 0) else fill_color
         pygame.draw.rect(surface, fill_color, self.full_rect)
 
     def update(self, *args: Any, **kwargs: Any) -> None:

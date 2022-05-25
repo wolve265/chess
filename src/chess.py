@@ -9,7 +9,8 @@ class Chess:
     def __init__(self) -> None:
         self.running = False
         self.board = Board()
-        print(self.board.sprites())
+        # print(self.board.sprites())
+        # print(self.board.rows[0].sprites())
 
     def run(self) -> None:
         self.running = True
