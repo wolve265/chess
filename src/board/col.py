@@ -7,6 +7,7 @@ from typing import *
 
 from game import game
 from settings import Settings
+from utils import col_int2str
 
 
 class Col(Group):
@@ -14,18 +15,18 @@ class Col(Group):
     Class representing the board column
     """
 
-    def __init__(self, col, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
+    def __init__(self, col_i, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
         super().__init__(*sprites)
-        self.col = col
-        self.col_str = chr(self.col + ord('a'))
-        self.full_rect_top = pygame.Rect((self.col*Settings.square_len + Settings.border_len, 0), (Settings.square_len, Settings.border_len))
-        self.full_rect_bottom = pygame.Rect((self.col*Settings.square_len + Settings.border_len, Settings.board_len + Settings.border_len), (Settings.square_len, Settings.border_len))
+        self.col_i = col_i
+        self.col_str = col_int2str(self.col_i)
+        self.full_rect_top = pygame.Rect((self.col_i*Settings.square_len + Settings.border_len, 0), (Settings.square_len, Settings.border_len))
+        self.full_rect_bottom = pygame.Rect((self.col_i*Settings.square_len + Settings.border_len, Settings.board_len + Settings.border_len), (Settings.square_len, Settings.border_len))
         self.image = game.font.render(f"{self.col_str}", True, Settings.white_color)
         self.rect_top = self.image.get_rect(center=self.full_rect_top.center)
         self.rect_bottom = self.image.get_rect(center=self.full_rect_bottom.center)
 
     def __repr__(self) -> str:
-        return f'{super().__repr__()} = {self.col}'
+        return f'{super().__repr__()} = {self.col_i}'
 
     def draw(self, surface: Surface) -> List[Rect]:
         surface.blit(self.image, self.rect_top)

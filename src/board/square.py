@@ -6,6 +6,7 @@ from typing import *
 
 from game import game
 from settings import Settings
+from utils import row_int2str, col_int2str
 
 
 class Square(Sprite):
@@ -13,21 +14,21 @@ class Square(Sprite):
     Class representing the single square of the chessboard
     """
 
-    def __init__(self, row: int, col: int, *groups: AbstractGroup) -> None:
+    def __init__(self, row_i: int, col_i: int, *groups: AbstractGroup) -> None:
         super().__init__(*groups)
-        self.row = row
-        self.col = col
-        self.full_rect = pygame.Rect((self.col*Settings.square_len + Settings.border_len, (Settings.rows-self.row-1)*Settings.square_len + Settings.border_len), Settings.square_size)
+        self.row_i = row_i
+        self.col_i = col_i
+        self.full_rect = pygame.Rect((self.col_i*Settings.square_len + Settings.border_len, (Settings.rows-self.row_i-1)*Settings.square_len + Settings.border_len), Settings.square_size)
         self.image = game.font.render(f"", True, 'Red')
         self.rect = self.image.get_rect(center=self.full_rect.center)
 
     def __repr__(self) -> str:
-        row_str = chr(self.row + ord('1'))
-        col_str = chr(self.col + ord('a'))
+        row_str = row_int2str(self.row_i)
+        col_str = col_int2str(self.col_i)
         return f'\n{super().__repr__()} | pos = ({col_str},{row_str})'
 
     def draw(self, surface: Surface) -> None:
-        fill_color = Settings.white_color if (self.row + self.col) % 2 else Settings.black_color
+        fill_color = Settings.white_color if (self.row_i + self.col_i) % 2 else Settings.black_color
         pygame.draw.rect(surface, fill_color, self.full_rect)
 
     def update(self, *args: Any, **kwargs: Any) -> None:

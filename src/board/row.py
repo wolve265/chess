@@ -7,6 +7,7 @@ from typing import *
 
 from game import game
 from settings import Settings
+from utils import row_int2str
 
 
 class Row(Group):
@@ -14,18 +15,18 @@ class Row(Group):
     Class representing the board row
     """
 
-    def __init__(self, row, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
+    def __init__(self, row_i, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
         super().__init__(*sprites)
-        self.row = row
-        self.row_str = chr(self.row + ord('1'))
-        self.full_rect_left = pygame.Rect((0, (Settings.rows-self.row-1)*Settings.square_len + Settings.border_len), (Settings.border_len, Settings.square_len))
-        self.full_rect_right = pygame.Rect((Settings.board_len + Settings.border_len, (Settings.rows-self.row-1)*Settings.square_len + Settings.border_len), (Settings.border_len, Settings.square_len))
+        self.row_i = row_i
+        self.row_str = row_int2str(self.row_i)
+        self.full_rect_left = pygame.Rect((0, (Settings.rows-self.row_i-1)*Settings.square_len + Settings.border_len), (Settings.border_len, Settings.square_len))
+        self.full_rect_right = pygame.Rect((Settings.board_len + Settings.border_len, (Settings.rows-self.row_i-1)*Settings.square_len + Settings.border_len), (Settings.border_len, Settings.square_len))
         self.image = game.font.render(f"{self.row_str}", True, Settings.white_color)
         self.rect_left = self.image.get_rect(center=self.full_rect_left.center)
         self.rect_right = self.image.get_rect(center=self.full_rect_right.center)
 
     def __repr__(self) -> str:
-        return f'{super().__repr__()} = {self.row}'
+        return f'{super().__repr__()} = {self.row_i}'
 
     def draw(self, surface: Surface) -> List[Rect]:
         surface.blit(self.image, self.rect_left)
