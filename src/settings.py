@@ -5,7 +5,7 @@ from pygame.color import Color
 @dataclass
 class Settings:
     """
-    Class for storing game settings
+    Class used for storing game settings
     """
 
     # Names
