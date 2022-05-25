@@ -1,9 +1,9 @@
 from typing import *
 
-from col import Col
+from board.col import Col
 from pieces.piece import Piece
 from pieces.pawn import Pawn
-from row import Row
+from board.row import Row
 from settings import Settings
 
 

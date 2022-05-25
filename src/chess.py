@@ -1,6 +1,6 @@
 import pygame
 
-from board import Board
+from board.chessboard import Board
 from game import game
 
 

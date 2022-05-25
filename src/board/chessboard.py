@@ -5,12 +5,12 @@ from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
 from typing import *
 
-from col import Col
+from board.col import Col
 from game import game
 from pieces.generator import Generator
 from pieces.piece import Piece
-from row import Row
-from square import Square
+from board.row import Row
+from board.square import Square
 from settings import Settings
 
 

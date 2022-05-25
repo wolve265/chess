@@ -4,7 +4,7 @@ from typing import *
 
 from game import game
 from settings import Settings
-from square import Square
+from board.square import Square
 
 
 class Piece(Square):
