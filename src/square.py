@@ -9,6 +9,7 @@ from settings import Settings
 
 
 class Square(Sprite):
+
     def __init__(self, row: int, col: int, *groups: AbstractGroup) -> None:
         super().__init__(*groups)
         self.row = row

@@ -13,16 +13,20 @@ class Settings:
 
     # Params
     rows = cols = 8
+
     square_len: int = 80
-    square_size: tuple[int] = (square_len, square_len)
-    board_len: int = rows * square_len
-    board_size: tuple[int] = (board_len, board_len)
+    board_len:  int = rows * square_len
     border_len: int = 25
     window_len: int = board_len + 2*border_len
+    font_size:  int = 30
+
+    board_size:  tuple[int] = (board_len, board_len)
+    square_size: tuple[int] = (square_len, square_len)
     window_size: tuple[int] = (window_len, window_len)
-    font_size: int = 30
 
     #Colors
-    background_color = Color(92, 104, 81)
-    black_color = Color(125, 148, 93)
-    white_color = Color(238, 238, 213)
+    background_color  = Color(92, 104, 81)
+    black_color       = Color(125, 148, 93)
+    white_color       = Color(238, 238, 213)
+    black_piece_color = Color(0, 0, 0)
+    white_piece_color = Color(255, 255, 255)

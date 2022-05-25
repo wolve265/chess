@@ -4,9 +4,6 @@ from settings import Settings
 
 
 class Game:
-    screen = None
-    clock = None
-
     def __init__(self) -> None:
         pygame.init()
         pygame.display.set_caption(Settings.window_caption)
