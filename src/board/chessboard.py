@@ -1,16 +1,14 @@
-import pygame
-
 from pygame.rect import Rect
 from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
 from typing import *
 
 from board.col import Col
+from board.row import Row
+from board.square import Square
 from game import game
 from pieces.generator import Generator
 from pieces.piece import Piece
-from board.row import Row
-from board.square import Square
 from settings import Settings
 
 
