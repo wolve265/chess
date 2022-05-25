@@ -10,7 +10,7 @@ class Game:
     def __init__(self) -> None:
         pygame.init()
         pygame.display.set_caption(Settings.window_caption)
-        self.screen = pygame.display.set_mode((Settings.window_len, Settings.window_len))
+        self.screen = pygame.display.set_mode(Settings.window_size)
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, Settings.font_size)
 
