@@ -23,7 +23,7 @@ class Board(Group):
         self.cols: List[Col] = []
         self.gen_board()
         self.gen_pieces()
-        super().__init__(self.squares, *sprites)
+        super().__init__(self.squares, self.pieces, *sprites)
 
     def draw(self, surface: Surface) -> List[Rect]:
         game.screen.fill(Settings.background_color)

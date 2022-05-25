@@ -41,3 +41,5 @@ class Generator:
             pieces.append(Queen(row_i, col_i, is_white, self.rows[row_i], self.cols[col_i]))
             col_i = 4
             pieces.append(King(row_i, col_i, is_white, self.rows[row_i], self.cols[col_i]))
+
+        return pieces
