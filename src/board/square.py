@@ -1,5 +1,6 @@
 import pygame
 
+from pygame import Rect
 from pygame.color import Color
 from pygame.sprite import AbstractGroup, Sprite
 from pygame.surface import Surface
@@ -21,7 +22,7 @@ class Square(Sprite):
         self.row_i = row_i
         self.col_i = col_i
         self.color = self.get_color()
-        self.full_rect = pygame.Rect((self.col_i*Settings.square_len + Settings.border_len, (Settings.rows-self.row_i-1)*Settings.square_len + Settings.border_len), Settings.square_size)
+        self.full_rect = self.get_full_rect()
         self.image = game.font.render(f"", True, 'Red')
         self.rect = self.image.get_rect(center=self.full_rect.center)
 
@@ -38,6 +39,9 @@ class Square(Sprite):
 
     def get_color(self) -> Color:
         return Settings.white_color if (self.row_i + self.col_i) % 2 else Settings.black_color
+
+    def get_full_rect(self) -> Rect:
+        return pygame.Rect((self.col_i*Settings.square_len + Settings.border_len, (Settings.rows-self.row_i-1)*Settings.square_len + Settings.border_len), Settings.square_size)
 
     def select(self) -> None:
         self.color = utils.highlight_color(self.color)

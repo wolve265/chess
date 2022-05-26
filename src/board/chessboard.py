@@ -62,6 +62,7 @@ class Board(Group):
             self.get_square(self.piece_selected).deselect()
             if self.piece_pressed is None:
                 # Move a piece to an empty square
+                game.state.action = Action.SELECT
                 self.move(self.piece_selected, self.square_pressed)
             else:
                 # Move a piece to another piece
@@ -71,6 +72,7 @@ class Board(Group):
                     return
                 else:
                     # Perform a capture
+                    game.state.action = Action.SELECT
                     self.capture(self.piece_selected, self.piece_pressed)
 
     def draw(self, surface: Surface) -> List[Rect]:
@@ -142,9 +144,7 @@ class Board(Group):
         """
         Moves a Piece to desired Square
         """
-        pass
-        # TODO: Implement move
-        # piece.move(square.row_i, square.col_i)
+        piece.move(square.row_i, square.col_i)
 
     def capture(self, attacker: Piece, defender: Piece) -> None:
         """

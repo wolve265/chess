@@ -1,6 +1,7 @@
 import os
 import pygame
 
+from pygame import Rect
 from pygame.sprite import AbstractGroup
 from pygame.surface import Surface
 from typing import *
@@ -22,7 +23,7 @@ class Piece(Square):
         self.color = Settings.white_piece_color if is_white else Settings.black_piece_color
         self.background_color = Settings.black_piece_color if is_white else Settings.white_piece_color
         self.image = self.get_image()
-        self.rect = self.image.get_rect(center=self.full_rect.center)
+        self.rect = self.get_rect()
 
     def draw(self, surface: Surface) -> None:
         # Ensures that Square.draw is overridden
@@ -49,3 +50,15 @@ class Piece(Square):
         # Scaling image to square size
         image = pygame.transform.smoothscale(cropped, Settings.square_size)
         return image
+
+    def get_rect(self) -> Rect:
+        return self.image.get_rect(center=self.full_rect.center)
+
+    def move(self, row_i: int, col_i: int) -> None:
+        """
+        Moves a Piece to desired row and col
+        """
+        self.row_i = row_i
+        self.col_i = col_i
+        self.full_rect = self.get_full_rect()
+        self.rect = self.get_rect()
