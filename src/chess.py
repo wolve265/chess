@@ -1,13 +1,14 @@
 import pygame
 
 from board.chessboard import Board
+from events import *
 from game import game
 from settings import Settings
 
 
 class Chess:
     """
-    Class representing the chess game
+    Class used as a wrapper
     """
 
     def __init__(self) -> None:
@@ -30,6 +31,10 @@ class Chess:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == END_GAME:
+                self.running = False
+            else:
+                self.board.actions(event)
 
     def update(self) -> None:
         """

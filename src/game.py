@@ -4,6 +4,10 @@ from settings import Settings
 
 
 class Game:
+    """
+    Class representing the game
+    """
+
     def __init__(self) -> None:
         pygame.init()
         pygame.display.set_caption(Settings.window_caption)
