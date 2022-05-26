@@ -7,6 +7,7 @@ from pygame.surface import Surface
 from typing import *
 
 from board.square import Square
+from game import *
 from settings import Settings
 
 
@@ -20,7 +21,7 @@ class Piece(Square):
     def __init__(self, row: int, col: int, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(row, col, *groups)
         self.is_white = is_white
-        self.color = Settings.white_piece_color if is_white else Settings.black_piece_color
+        self.player = Player.WHITE if is_white else Player.BLACK
         self.background_color = Settings.black_piece_color if is_white else Settings.white_piece_color
         self.image = self.get_image()
         self.rect = self.get_rect()

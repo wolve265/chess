@@ -51,8 +51,11 @@ class Board(Group):
                 self.square_pressed = self.get_square(event.pos)
 
         if game.state.action == Action.SELECT:
-            # Can only select pieces
             if self.piece_pressed is None:
+                # Can only select pieces
+                return
+            if self.piece_pressed.player != game.state.player:
+                # Can only select own pieces
                 return
             game.state.action = Action.MOVE
             self.piece_selected = self.piece_pressed
@@ -63,16 +66,18 @@ class Board(Group):
             if self.piece_pressed is None:
                 # Move a piece to an empty square
                 game.state.action = Action.SELECT
+                game.change_player()
                 self.move(self.piece_selected, self.square_pressed)
             else:
                 # Move a piece to another piece
-                if self.piece_selected.color == self.piece_pressed.color:
-                    # Cannot move to the piece of the same color
+                if self.piece_selected.player == self.piece_pressed.player:
+                    # Cannot move to the piece of the same player
                     game.state.action = Action.SELECT
                     return
                 else:
                     # Perform a capture
                     game.state.action = Action.SELECT
+                    game.change_player()
                     self.capture(self.piece_selected, self.piece_pressed)
 
     def draw(self, surface: Surface) -> List[Rect]:

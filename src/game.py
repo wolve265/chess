@@ -36,4 +36,10 @@ class Game:
         self.state = State()
         print(self.state)
 
+    def change_player(self) -> None:
+        if self.state.player == Player.WHITE:
+            self.state.player = Player.BLACK
+        else:
+            self.state.player = Player.WHITE
+
 game = Game()
