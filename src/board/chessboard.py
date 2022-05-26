@@ -1,4 +1,3 @@
-from tkinter import END
 import pygame
 
 from pygame.event import Event
@@ -11,7 +10,7 @@ from board.col import Col
 from board.row import Row
 from board.square import Square
 from events import *
-from game import game
+from game import *
 from pieces.generator import Generator
 from pieces.piece import Piece
 from settings import Settings
