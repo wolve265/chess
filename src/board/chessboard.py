@@ -150,7 +150,6 @@ class Board(Group):
         """
         Attacker Piece captures the defender Piece
         """
-        pass
-        # TODO: Implement capture
-        # attacker.move(defender.row_i, defender.col_i)
-        # defender.remove()
+        self.pieces.remove(defender)
+        defender.kill()
+        attacker.move(defender.row_i, defender.col_i)
