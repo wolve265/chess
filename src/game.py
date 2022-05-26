@@ -13,7 +13,7 @@ class Player(Enum):
 
 class Action(Enum):
     SELECT = auto()
-    PLACE = auto()
+    MOVE = auto()
 
 
 @dataclass

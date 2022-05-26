@@ -1,5 +1,6 @@
 import pygame
 
+from multipledispatch import dispatch
 from pygame.event import Event
 from pygame.rect import Rect
 from pygame.sprite import Group, Sprite
@@ -26,6 +27,7 @@ class Board(Group):
         self.pieces: List[Piece] = []
         self.rows: List[Row] = []
         self.cols: List[Col] = []
+        self.square_pressed: Square = None
         self.piece_pressed: Piece = None
         self.piece_selected: Piece = None
         self.setup()
@@ -41,22 +43,35 @@ class Board(Group):
             return
 
         self.piece_pressed = None
+        self.square_pressed = None
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == pygame.BUTTON_LEFT:
                 self.piece_pressed = self.get_piece(event.pos)
+                self.square_pressed = self.get_square(event.pos)
 
-        if self.piece_pressed is not None:
-            if game.state.action == Action.SELECT:
-                game.state.action = Action.PLACE
-                self.piece_selected = self.piece_pressed
-                self.get_square(self.piece_selected).select()
-            elif game.state.action == Action.PLACE:
-                self.get_square(self.piece_selected).deselect()
-                if self.piece_selected == self.piece_pressed:
+        if game.state.action == Action.SELECT:
+            # Can only select pieces
+            if self.piece_pressed is None:
+                return
+            game.state.action = Action.MOVE
+            self.piece_selected = self.piece_pressed
+            self.get_square(self.piece_selected).select()
+        elif game.state.action == Action.MOVE and self.square_pressed is not None:
+            # Can move a piece to an empty square as well as to another piece
+            self.get_square(self.piece_selected).deselect()
+            if self.piece_pressed is None:
+                # Move a piece to an empty square
+                self.move(self.piece_selected, self.square_pressed)
+            else:
+                # Move a piece to another piece
+                if self.piece_selected.color == self.piece_pressed.color:
+                    # Cannot move to the piece of the same color
                     game.state.action = Action.SELECT
+                    return
                 else:
-                    pass
+                    # Perform a capture
+                    self.capture(self.piece_selected, self.piece_pressed)
 
     def draw(self, surface: Surface) -> List[Rect]:
         game.screen.fill(Settings.background_color)
@@ -95,6 +110,7 @@ class Board(Group):
         # TODO: Implement checkmate functionality
         return False
 
+    @dispatch(tuple)
     def get_square(self, pos: tuple[int]) -> Square | None:
         """
         Returns Square object from pos
@@ -104,6 +120,7 @@ class Board(Group):
                 return square
         return None
 
+    @dispatch(Piece)
     def get_square(self, piece: Piece) -> Square:
         """
         Returns Square object of the same position as piece
@@ -120,3 +137,20 @@ class Board(Group):
             if piece.full_rect.collidepoint(pos):
                 return piece
         return None
+
+    def move(self, piece: Piece, square: Square) -> None:
+        """
+        Moves a Piece to desired Square
+        """
+        pass
+        # TODO: Implement move
+        # piece.move(square.row_i, square.col_i)
+
+    def capture(self, attacker: Piece, defender: Piece) -> None:
+        """
+        Attacker Piece captures the defender Piece
+        """
+        pass
+        # TODO: Implement capture
+        # attacker.move(defender.row_i, defender.col_i)
+        # defender.remove()
