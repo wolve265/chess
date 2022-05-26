@@ -1,3 +1,5 @@
+from pygame.color import Color
+
 def row_int2str(row_i: int) -> str:
     """
     Converts row index to string\n
@@ -26,6 +28,10 @@ def col_str2int(col_str: str) -> int:
     """
     return ord(col_str) - ord('a')
 
-
-if __name__ == "__main__":
-    print(col_str2int('d'), row_str2int('5'))
+def highlight_color(color: Color) -> Color:
+    """
+    Returns highlighted color
+    """
+    more_gamma = any([val>0.8 for val in color.normalize()][:3])
+    gamma = 5 if more_gamma else 2
+    return color.correct_gamma(gamma)

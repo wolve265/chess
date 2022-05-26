@@ -26,6 +26,8 @@ class Board(Group):
         self.pieces: List[Piece] = []
         self.rows: List[Row] = []
         self.cols: List[Col] = []
+        self.piece_pressed: Piece = None
+        self.piece_selected: Piece = None
         self.setup()
         super().__init__(self.squares, self.pieces, *sprites)
 
@@ -37,13 +39,24 @@ class Board(Group):
         if self.is_checkmate():
             gen_event(END_GAME)
             return
+
+        self.piece_pressed = None
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == pygame.BUTTON_LEFT:
-                pressed_square = self.get_square(event.pos)
-                pressed_piece = self.get_piece(event.pos)
-                print(pressed_square)
-                print(pressed_piece)
+                self.piece_pressed = self.get_piece(event.pos)
 
+        if self.piece_pressed is not None:
+            if game.state.action == Action.SELECT:
+                game.state.action = Action.PLACE
+                self.piece_selected = self.piece_pressed
+                self.get_square(self.piece_selected).select()
+            elif game.state.action == Action.PLACE:
+                self.get_square(self.piece_selected).deselect()
+                if self.piece_selected == self.piece_pressed:
+                    game.state.action = Action.SELECT
+                else:
+                    pass
 
     def draw(self, surface: Surface) -> List[Rect]:
         game.screen.fill(Settings.background_color)
@@ -90,6 +103,14 @@ class Board(Group):
             if square.full_rect.collidepoint(pos):
                 return square
         return None
+
+    def get_square(self, piece: Piece) -> Square:
+        """
+        Returns Square object of the same position as piece
+        """
+        for square in self.squares:
+            if square.full_rect.colliderect(piece.full_rect):
+                return square
 
     def get_piece(self, pos: tuple[int]) -> Piece | None:
         """

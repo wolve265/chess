@@ -2,7 +2,7 @@ import pygame
 
 from board.chessboard import Board
 from events import *
-from game import game
+from game import *
 from settings import Settings
 
 

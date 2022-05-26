@@ -5,9 +5,10 @@ from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
 from typing import *
 
-from game import game
+import utils
+
+from game import *
 from settings import Settings
-from utils import row_int2str
 
 
 class Row(Group):
@@ -18,7 +19,7 @@ class Row(Group):
     def __init__(self, row_i, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
         super().__init__(*sprites)
         self.row_i = row_i
-        self.row_str = row_int2str(self.row_i)
+        self.row_str = utils.row_int2str(self.row_i)
         self.full_rect_left = pygame.Rect((0, (Settings.rows-self.row_i-1)*Settings.square_len + Settings.border_len), (Settings.border_len, Settings.square_len))
         self.full_rect_right = pygame.Rect((Settings.board_len + Settings.border_len, (Settings.rows-self.row_i-1)*Settings.square_len + Settings.border_len), (Settings.border_len, Settings.square_len))
         self.image = game.font.render(f"{self.row_str}", True, Settings.white_color)
