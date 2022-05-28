@@ -34,9 +34,11 @@ class Game:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, Settings.font_size)
         self.state = State()
-        print(self.state)
 
-    def change_player(self) -> None:
+    def end_player_turn(self) -> None:
+        """
+        Ends player turn
+        """
         if self.state.player == Player.WHITE:
             self.state.player = Player.BLACK
         else:
