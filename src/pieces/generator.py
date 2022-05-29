@@ -26,7 +26,7 @@ class Generator:
 
         # Pawns
         for row_i, is_white in zip((1,6), (True, False)):
-            for col_i in range(Settings.cols):
+            for col_i in range(Settings.COL_NUM):
                 pieces.append(Pawn(row_i, col_i, is_white, self.rows[row_i], self.cols[col_i]))
 
         # Rooks, Knights, Bishops, Queens, Kings

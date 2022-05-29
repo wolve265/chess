@@ -130,3 +130,6 @@ dmypy.json
 
 # VisualStudioCode workspace
 *.code-workspace
+
+# Drawio
+*.drawio

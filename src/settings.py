@@ -1,6 +1,9 @@
+import os
+
 from dataclasses import dataclass
 from pygame.color import Color
 
+import utils
 
 @dataclass
 class Settings:
@@ -9,26 +12,31 @@ class Settings:
     """
 
     # Names
-    window_caption: str = 'Chess'
+    WINDOW_CAPTION: str = 'Chess'
+
+    # Paths
+    MAIN_DIR: str       = utils.dirname(utils.dirname(__file__))
+    IMG_DIR: str        = utils.join(MAIN_DIR, 'img')
+    PIECES_IMG_DIR: str = utils.join(IMG_DIR, 'pieces')
 
     # Params
-    rows: int = 8
-    cols: int = 8
-    fps:  int = 30
+    ROW_NUM: int = 8
+    COL_NUM: int = 8
+    FPS:     int = 30
 
-    square_len: int = 80
-    board_len:  int = rows * square_len
-    border_len: int = 25
-    window_len: int = board_len + 2*border_len
-    font_size:  int = 30
+    SQUARE_LEN: int = 80
+    BOARD_LEN:  int = ROW_NUM * SQUARE_LEN
+    BORDER_LEN: int = 25
+    WINDOW_LEN: int = BOARD_LEN + 2*BORDER_LEN
+    FONT_SIZE:  int = 30
 
-    board_size:  tuple[int] = (board_len, board_len)
-    square_size: tuple[int] = (square_len, square_len)
-    window_size: tuple[int] = (window_len, window_len)
+    BOARD_SIZE:  tuple[int] = (BOARD_LEN, BOARD_LEN)
+    SQUARE_SIZE: tuple[int] = (SQUARE_LEN, SQUARE_LEN)
+    WINDOW_SIZE: tuple[int] = (WINDOW_LEN, WINDOW_LEN)
 
     #Colors
-    background_color  = Color(92, 104, 81)
-    black_color       = Color(125, 148, 93)
-    white_color       = Color(238, 238, 213)
-    black_piece_color = Color(0, 0, 0)
-    white_piece_color = Color(255, 255, 255)
+    BACKGROUND_COLOR   = Color(92, 104, 81)
+    SQUARE_BLACK_COLOR = Color(125, 148, 93)
+    SQUARE_WHITE_COLOR = Color(238, 238, 213)
+    BLACK_COLOR        = Color(0, 0, 0)
+    WHITE_COLOR        = Color(255, 255, 255)

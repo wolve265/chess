@@ -6,6 +6,8 @@ from pygame.sprite import AbstractGroup
 from pygame.surface import Surface
 from typing import *
 
+import utils
+
 from board.square import Square
 from game import *
 from settings import Settings
@@ -16,15 +18,18 @@ class Piece(Square):
     Abstract class for every piece
     """
 
-    pieces_img_dir = os.path.join('img', 'pieces')
-
     def __init__(self, row: int, col: int, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(row, col, *groups)
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
-        self.background_color = Settings.black_piece_color if is_white else Settings.white_piece_color
+        self.background_color = Settings.BLACK_COLOR if is_white else Settings.WHITE_COLOR
+        self.possible_moves = AbstractGroup()
         self.image = self.get_image()
         self.rect = self.get_rect()
+        self.setup()
+
+    def setup(self) -> None:
+        self.update_possible_moves()
 
     def draw(self, surface: Surface) -> None:
         # Ensures that Square.draw is overridden
@@ -33,14 +38,23 @@ class Piece(Square):
     def update(self, *args: Any, **kwargs: Any) -> None:
         return super().update(*args, **kwargs)
 
+    def update_possible_moves(self) -> AbstractGroup:
+        """
+        Updates possible moves
+        """
+        self.possible_moves.empty()
+
+        for square in game.squares:
+            if self in square.get_col_group():
+                self.possible_moves.add(square)
+
     def get_image(self) -> Surface:
         """
         Gets the sprite image according to piece name and color
         """
         # Loading image with both white and black piece
         name = self.__class__.__name__.lower()
-        image_path = os.path.join(self.pieces_img_dir, f'{name}.png')
-        image = pygame.image.load(image_path).convert_alpha()
+        image = utils.load_image(utils.join(Settings.PIECES_IMG_DIR, f'{name}.png'))
 
         # Cropping the piece with appropriate color
         (width, height) = image.get_size()
@@ -49,7 +63,7 @@ class Piece(Square):
         cropped.blit(image, (0, offset))
 
         # Scaling image to square size
-        image = pygame.transform.smoothscale(cropped, Settings.square_size)
+        image = pygame.transform.smoothscale(cropped, Settings.SQUARE_SIZE)
         return image
 
     def get_rect(self) -> Rect:
@@ -63,3 +77,4 @@ class Piece(Square):
         self.col_i = square.col_i
         self.full_rect = self.get_full_rect()
         self.rect = self.get_rect()
+        self.update_possible_moves()

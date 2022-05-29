@@ -21,7 +21,7 @@ class Chess:
             self.actions()
             self.update()
             pygame.display.update()
-            game.clock.tick(Settings.fps)
+            game.clock.tick(Settings.FPS)
         pygame.quit()
 
     def actions(self) -> None:
