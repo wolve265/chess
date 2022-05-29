@@ -1,3 +1,4 @@
+from numpy import isin
 import pygame
 
 from multipledispatch import dispatch
@@ -35,6 +36,7 @@ class Board(Group):
 
     def setup(self) -> None:
         self.gen_board()
+        game.squares.add(self.squares)
         self.gen_pieces()
 
     def actions(self, event: Event) -> None:
@@ -68,7 +70,7 @@ class Board(Group):
             game.end_player_turn()
 
     def draw(self, surface: Surface) -> List[Rect]:
-        game.screen.fill(Settings.background_color)
+        game.screen.fill(Settings.BACKGROUND_COLOR)
         for square in self.squares:
             square.draw(surface)
         for row, col in zip(self.rows, self.cols):
@@ -83,11 +85,11 @@ class Board(Group):
         """
         Generates all board groups and sprites
         """
-        for i in range(Settings.rows):
+        for i in range(Settings.ROW_NUM):
             self.rows.append(Row(i))
             self.cols.append(Col(i))
-        for row_i in range(Settings.rows):
-            for col_i in range(Settings.cols):
+        for row_i in range(Settings.ROW_NUM):
+            for col_i in range(Settings.COL_NUM):
                 self.squares.append(Square(row_i, col_i, self.rows[row_i], self.cols[col_i]))
 
     def gen_pieces(self) -> None:
@@ -104,12 +106,18 @@ class Board(Group):
         # TODO: Implement checkmate functionality
         return False
 
+    def get_all_squares(self) -> Sequence[Square]:
+        """
+        Gets all Square objects from Board sprites
+        """
+        return [sprite for sprite in self.sprites() if type(sprite) is Square]
+
     @dispatch(tuple)
     def get_square(self, pos: tuple[int]) -> Square | None:
         """
         Returns Square object from pos
         """
-        for square in self.squares:
+        for square in self.get_all_squares():
             if square.full_rect.collidepoint(pos):
                 return square
         return None
@@ -119,18 +127,34 @@ class Board(Group):
         """
         Returns Square object of the same position as piece
         """
-        for square in self.squares:
+        for square in self.get_all_squares():
             if square.full_rect.colliderect(piece.full_rect):
                 return square
 
+    def get_all_pieces(self) -> Sequence[Piece]:
+        """
+        Gets all Piece objects from Board sprites
+        """
+        return [sprite for sprite in self.sprites() if isinstance(sprite, Piece)]
+
+    @dispatch(tuple)
     def get_piece(self, pos: tuple[int]) -> Piece | None:
         """
         Returns Piece object from pos
         """
-        for piece in self.pieces:
+        for piece in self.get_all_pieces():
             if piece.full_rect.collidepoint(pos):
                 return piece
         return None
+
+    @dispatch(Square)
+    def get_piece(self, square: Square) -> Piece:
+        """
+        Returns Piece object of the same position as square
+        """
+        for piece in self.get_all_pieces():
+            if piece.full_rect.colliderect(square.full_rect):
+                return piece
 
     def try_select_piece(self) -> bool:
         """
@@ -142,20 +166,34 @@ class Board(Group):
         if self.piece_pressed.player != game.state.player:
             # Can only select own pieces
             return False
+
         if self.piece_selected is not None:
-            self.get_square(self.piece_selected).deselect()
+            for square in self.get_all_squares():
+                square.render_reset()
+
         self.piece_selected = self.piece_pressed
-        self.get_square(self.piece_selected).select()
+        self.get_square(self.piece_selected).render_selection()
+        for square in self.piece_selected.possible_moves:
+            if self.get_piece(square):
+                square.render_possible_capture()
+            else:
+                square.render_possible_move()
         return True
 
     def try_move_piece(self) -> bool:
         """
         Tries to move a piece. If successful, returns True
         """
-        # Can move a piece to an empty square as well as to another piece
+        # Cannot move if no square is pressed
         if self.square_pressed is None:
             return False
-        self.get_square(self.piece_selected).deselect()
+
+        # Cannot move if square is not in possible moves
+        if not self.square_pressed in self.piece_selected.possible_moves:
+            return False
+
+        for square in self.get_all_squares():
+            square.render_reset()
 
         # Move a piece to an empty square
         if self.piece_pressed is None:
@@ -176,6 +214,12 @@ class Board(Group):
         """
         Attacker Piece captures the defender Piece
         """
-        self.pieces.remove(defender)
-        defender.kill()
         attacker.move(defender)
+        self.remove_piece(defender)
+
+    def remove_piece(self, piece: Piece) -> None:
+        """
+        Removes Piece from board
+        """
+        piece.kill()
+        piece.possible_moves.empty()

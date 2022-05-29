@@ -2,6 +2,7 @@ import pygame
 
 from dataclasses import dataclass
 from enum import Enum, auto
+from pygame.sprite import AbstractGroup
 
 from settings import Settings
 
@@ -30,11 +31,12 @@ class Game:
 
     def __init__(self) -> None:
         pygame.init()
-        pygame.display.set_caption(Settings.window_caption)
-        self.screen = pygame.display.set_mode(Settings.window_size)
+        pygame.display.set_caption(Settings.WINDOW_CAPTION)
+        self.screen = pygame.display.set_mode(Settings.WINDOW_SIZE)
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.Font(None, Settings.font_size)
+        self.font = pygame.font.Font(None, Settings.FONT_SIZE)
         self.state = State()
+        self.squares = AbstractGroup()
 
     def end_player_turn(self) -> None:
         """

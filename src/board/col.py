@@ -20,9 +20,9 @@ class Col(Group):
         super().__init__(*sprites)
         self.col_i = col_i
         self.col_str = utils.col_int2str(self.col_i)
-        self.full_rect_top = pygame.Rect((self.col_i*Settings.square_len + Settings.border_len, 0), (Settings.square_len, Settings.border_len))
-        self.full_rect_bottom = pygame.Rect((self.col_i*Settings.square_len + Settings.border_len, Settings.board_len + Settings.border_len), (Settings.square_len, Settings.border_len))
-        self.image = game.font.render(f"{self.col_str}", True, Settings.white_color)
+        self.full_rect_top = pygame.Rect((self.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, 0), (Settings.SQUARE_LEN, Settings.BORDER_LEN))
+        self.full_rect_bottom = pygame.Rect((self.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, Settings.BOARD_LEN + Settings.BORDER_LEN), (Settings.SQUARE_LEN, Settings.BORDER_LEN))
+        self.image = game.font.render(f"{self.col_str}", True, Settings.SQUARE_WHITE_COLOR)
         self.rect_top = self.image.get_rect(center=self.full_rect_top.center)
         self.rect_bottom = self.image.get_rect(center=self.full_rect_bottom.center)
 
