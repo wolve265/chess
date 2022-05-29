@@ -50,35 +50,22 @@ class Board(Group):
                 self.piece_pressed = self.get_piece(event.pos)
                 self.square_pressed = self.get_square(event.pos)
 
+        # Actions "State Machine"
         if game.state.action == Action.SELECT:
-            if self.piece_pressed is None:
-                # Can only select pieces
-                return
-            if self.piece_pressed.player != game.state.player:
-                # Can only select own pieces
-                return
-            game.state.action = Action.MOVE
-            self.piece_selected = self.piece_pressed
-            self.get_square(self.piece_selected).select()
-        elif game.state.action == Action.MOVE and self.square_pressed is not None:
-            # Can move a piece to an empty square as well as to another piece
-            self.get_square(self.piece_selected).deselect()
-            if self.piece_pressed is None:
-                # Move a piece to an empty square
-                game.state.action = Action.SELECT
-                game.end_player_turn()
-                self.move(self.piece_selected, self.square_pressed)
-            else:
-                # Move a piece to another piece
-                if self.piece_selected.player == self.piece_pressed.player:
-                    # Cannot move to the piece of the same player
-                    game.state.action = Action.SELECT
-                    return
-                else:
-                    # Perform a capture
-                    game.state.action = Action.SELECT
-                    game.end_player_turn()
-                    self.capture(self.piece_selected, self.piece_pressed)
+            # Select a piece
+            if self.try_select_piece():
+                game.state.action = Action.MOVE
+        elif game.state.action == Action.MOVE:
+            # Change selected piece or ...
+            if self.try_select_piece():
+                pass
+            # ... move selected piece
+            elif self.try_move_piece():
+                game.state.action = Action.END_TURN
+        elif game.state.action == Action.END_TURN:
+            # End turn
+            game.state.action = Action.SELECT
+            game.end_player_turn()
 
     def draw(self, surface: Surface) -> List[Rect]:
         game.screen.fill(Settings.background_color)
@@ -112,7 +99,7 @@ class Board(Group):
 
     def is_checkmate(self) -> bool:
         """
-        Returns information if there is a checkmate
+        Returns True if there is a checkmate
         """
         # TODO: Implement checkmate functionality
         return False
@@ -145,13 +132,47 @@ class Board(Group):
                 return piece
         return None
 
-    def move(self, piece: Piece, square: Square) -> None:
+    def try_select_piece(self) -> bool:
+        """
+        Tries to select a piece. If successful, returns True
+        """
+        if self.piece_pressed is None:
+            # Can only select pieces
+            return False
+        if self.piece_pressed.player != game.state.player:
+            # Can only select own pieces
+            return False
+        if self.piece_selected is not None:
+            self.get_square(self.piece_selected).deselect()
+        self.piece_selected = self.piece_pressed
+        self.get_square(self.piece_selected).select()
+        return True
+
+    def try_move_piece(self) -> bool:
+        """
+        Tries to move a piece. If successful, returns True
+        """
+        # Can move a piece to an empty square as well as to another piece
+        if self.square_pressed is None:
+            return False
+        self.get_square(self.piece_selected).deselect()
+
+        # Move a piece to an empty square
+        if self.piece_pressed is None:
+            self.move_piece(self.piece_selected, self.square_pressed)
+            return True
+
+        # Move a piece to another piece = perform a capture
+        self.capture_piece(self.piece_selected, self.piece_pressed)
+        return True
+
+    def move_piece(self, piece: Piece, square: Square) -> None:
         """
         Moves a Piece to desired Square
         """
         piece.move(square.row_i, square.col_i)
 
-    def capture(self, attacker: Piece, defender: Piece) -> None:
+    def capture_piece(self, attacker: Piece, defender: Piece) -> None:
         """
         Attacker Piece captures the defender Piece
         """

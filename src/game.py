@@ -14,6 +14,7 @@ class Player(Enum):
 class Action(Enum):
     SELECT = auto()
     MOVE = auto()
+    END_TURN = auto()
 
 
 @dataclass
