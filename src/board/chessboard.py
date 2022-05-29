@@ -170,7 +170,7 @@ class Board(Group):
         """
         Moves a Piece to desired Square
         """
-        piece.move(square.row_i, square.col_i)
+        piece.move(square)
 
     def capture_piece(self, attacker: Piece, defender: Piece) -> None:
         """
@@ -178,4 +178,4 @@ class Board(Group):
         """
         self.pieces.remove(defender)
         defender.kill()
-        attacker.move(defender.row_i, defender.col_i)
+        attacker.move(defender)

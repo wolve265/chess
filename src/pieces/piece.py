@@ -55,11 +55,11 @@ class Piece(Square):
     def get_rect(self) -> Rect:
         return self.image.get_rect(center=self.full_rect.center)
 
-    def move(self, row_i: int, col_i: int) -> None:
+    def move(self, square: Square) -> None:
         """
-        Moves a Piece to desired row and col
+        Moves a Piece to desired square
         """
-        self.row_i = row_i
-        self.col_i = col_i
+        self.row_i = square.row_i
+        self.col_i = square.col_i
         self.full_rect = self.get_full_rect()
         self.rect = self.get_rect()
