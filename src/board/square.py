@@ -10,6 +10,7 @@ import utils
 
 from board.col import Col
 from board.row import Row
+from board.coord import Coord
 from game import *
 from settings import Settings
 
@@ -22,19 +23,16 @@ class Square(Sprite):
     possible_move_image = utils.load_image(utils.join(Settings.IMG_DIR, 'possible_move.png'))
     possible_capture_image = utils.load_image(utils.join(Settings.IMG_DIR, 'possible_capture.png'))
 
-    def __init__(self, row_i: int, col_i: int, *groups: AbstractGroup) -> None:
+    def __init__(self, coord: Coord, *groups: AbstractGroup) -> None:
         super().__init__(*groups)
-        self.row_i = row_i
-        self.col_i = col_i
+        self.coord = coord
         self.color = self.get_color()
         self.full_rect = self.get_full_rect()
         self.image = game.font.render(f"", True, Settings.BLACK_COLOR)
         self.rect = self.image.get_rect(center=self.full_rect.center)
 
     def __repr__(self) -> str:
-        row_str = utils.row_int2str(self.row_i)
-        col_str = utils.col_int2str(self.col_i)
-        return f'\n{super().__repr__()} | pos = ({col_str},{row_str})'
+        return f'\n{super().__repr__()} | coord = ({self.coord})'
 
     def draw(self, surface: Surface) -> None:
         pygame.draw.rect(surface, self.color, self.full_rect)
@@ -43,10 +41,10 @@ class Square(Sprite):
         return super().update(*args, **kwargs)
 
     def get_color(self) -> Color:
-        return Settings.SQUARE_WHITE_COLOR if (self.row_i + self.col_i) % 2 else Settings.SQUARE_BLACK_COLOR
+        return Settings.SQUARE_WHITE_COLOR if (self.coord.row_i + self.coord.col_i) % 2 else Settings.SQUARE_BLACK_COLOR
 
     def get_full_rect(self) -> Rect:
-        return pygame.Rect((self.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, (Settings.ROW_NUM-self.row_i-1)*Settings.SQUARE_LEN + Settings.BORDER_LEN), Settings.SQUARE_SIZE)
+        return pygame.Rect((self.coord.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, (Settings.ROW_NUM-self.coord.row_i-1)*Settings.SQUARE_LEN + Settings.BORDER_LEN), Settings.SQUARE_SIZE)
 
     def get_row_group(self) -> Row:
         for group in self.groups():

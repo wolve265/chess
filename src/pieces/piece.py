@@ -8,6 +8,7 @@ from typing import *
 
 import utils
 
+from board.coord import Coord
 from board.square import Square
 from game import *
 from settings import Settings
@@ -18,8 +19,8 @@ class Piece(Square):
     Abstract class for every piece
     """
 
-    def __init__(self, row: int, col: int, is_white: bool, *groups: AbstractGroup) -> None:
-        super().__init__(row, col, *groups)
+    def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
+        super().__init__(coord, *groups)
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
         self.background_color = Settings.BLACK_COLOR if is_white else Settings.WHITE_COLOR
@@ -73,8 +74,7 @@ class Piece(Square):
         """
         Moves a Piece to desired square
         """
-        self.row_i = square.row_i
-        self.col_i = square.col_i
+        self.coord = square.coord
         self.full_rect = self.get_full_rect()
         self.rect = self.get_rect()
         self.update_possible_moves()

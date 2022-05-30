@@ -10,6 +10,7 @@ from typing import *
 
 from board.col import Col
 from board.row import Row
+from board.coord import Coord
 from board.square import Square
 from events import *
 from game import *
@@ -90,7 +91,7 @@ class Board(Group):
             self.cols.append(Col(i))
         for row_i in range(Settings.ROW_NUM):
             for col_i in range(Settings.COL_NUM):
-                self.squares.append(Square(row_i, col_i, self.rows[row_i], self.cols[col_i]))
+                self.squares.append(Square(Coord(row_i, col_i), self.rows[row_i], self.cols[col_i]))
 
     def gen_pieces(self) -> None:
         """
