@@ -24,12 +24,15 @@ class Piece(Square):
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
         self.background_color = Settings.BLACK_COLOR if is_white else Settings.WHITE_COLOR
+        self.moved = False
+        self.moves: set[Coord] = set()
         self.possible_moves = AbstractGroup()
         self.image = self.get_image()
         self.rect = self.get_rect()
         self.setup()
 
     def setup(self) -> None:
+        self.update_moves()
         self.update_possible_moves()
 
     def draw(self, surface: Surface) -> None:
@@ -39,14 +42,22 @@ class Piece(Square):
     def update(self, *args: Any, **kwargs: Any) -> None:
         return super().update(*args, **kwargs)
 
-    def update_possible_moves(self) -> AbstractGroup:
+    def update_moves(self) -> None:
+        """
+        Updates moves
+        """
+        pass
+
+    def update_possible_moves(self) -> None:
         """
         Updates possible moves
         """
         self.possible_moves.empty()
 
         for square in game.squares:
-            if self in square.get_col_group():
+            # print(f"{square}")
+            # print(f"{(square.coord - self.coord)!r}")
+            if (square.coord - self.coord) in self.moves:
                 self.possible_moves.add(square)
 
     def get_image(self) -> Surface:

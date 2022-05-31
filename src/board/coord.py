@@ -3,13 +3,19 @@ from dataclasses import dataclass
 import utils
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class Coord:
     row_i: int
     col_i: int
 
     def __add__(self, other) -> 'Coord':
         return Coord(self.row_i + other.row_i, self.col_i + other.col_i)
+
+    def __sub__(self, other) -> 'Coord':
+        return Coord(self.row_i - other.row_i, self.col_i - other.col_i)
+
+    def __mul__(self, other) -> bool:
+        return Coord(self.row_i * other.row_i, self.col_i * other.col_i)
 
     def __str__(self) -> str:
         row_str = self.get_row_str()

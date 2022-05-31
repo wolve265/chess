@@ -1,5 +1,4 @@
-from pygame.sprite import AbstractGroup
-
+from board.coord import Coord
 from pieces.piece import Piece
 
 
@@ -8,5 +7,6 @@ class King(Piece):
     Class representing the King piece
     """
 
-    def __init__(self, row: int, col: int, is_white: bool, *groups: AbstractGroup) -> None:
-        super().__init__(row, col, is_white, *groups)
+    def update_moves(self) -> None:
+        self.moves = {Coord(1, 0), Coord(1, 1), Coord(0, 1), Coord(-1, 1), Coord(-1, 0), Coord(-1, -1), Coord(0, -1), Coord(1, -1)}
+        return super().update_moves()
