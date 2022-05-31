@@ -1,4 +1,4 @@
-import os
+import time
 import pygame
 
 from pygame import Rect
@@ -19,12 +19,14 @@ class Piece(Square):
     Abstract class for every piece
     """
 
+    move_range = 0
+    directions: set[Coord] = set()
+
     def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(coord, *groups)
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
         self.background_color = Settings.BLACK_COLOR if is_white else Settings.WHITE_COLOR
-        self.moved = False
         self.moves: set[Coord] = set()
         self.possible_moves = AbstractGroup()
         self.image = self.get_image()
@@ -46,7 +48,10 @@ class Piece(Square):
         """
         Updates moves
         """
-        pass
+        self.moves = set()
+        for direction in self.directions:
+            for i in range(1, self.move_range+1):
+                self.moves.add(direction * Coord(i, i))
 
     def update_possible_moves(self) -> None:
         """

@@ -8,11 +8,5 @@ class Rook(Piece):
     Class representing the Rook piece
     """
 
-    def update_moves(self) -> None:
-        moves = set()
-        for mul in [Coord(1, 1), Coord(-1, -1)]:
-            for i in range(Settings.ROW_NUM):
-                moves.add(Coord(i, 0) * mul)
-                moves.add(Coord(0, i) * mul)
-        self.moves = moves
-        return super().update_moves()
+    move_range = 8
+    directions = {Coord(1, 0), Coord(0, 1), Coord(-1, 0), Coord(0, -1)}
