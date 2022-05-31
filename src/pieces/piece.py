@@ -55,8 +55,6 @@ class Piece(Square):
         self.possible_moves.empty()
 
         for square in game.squares:
-            # print(f"{square}")
-            # print(f"{(square.coord - self.coord)!r}")
             if (square.coord - self.coord) in self.moves:
                 self.possible_moves.add(square)
 

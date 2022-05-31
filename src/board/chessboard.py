@@ -175,8 +175,9 @@ class Board(Group):
         self.piece_selected = self.piece_pressed
         self.get_square(self.piece_selected).render_selection()
         for square in self.piece_selected.possible_moves:
-            if self.get_piece(square):
-                square.render_possible_capture()
+            if piece := self.get_piece(square):
+                if piece.player != self.piece_selected.player:
+                    square.render_possible_capture()
             else:
                 square.render_possible_move()
         return True
