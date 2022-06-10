@@ -39,6 +39,8 @@ class Board(Group):
         self.gen_board()
         game.squares.add(self.squares)
         self.gen_pieces()
+        game.pieces.add(self.pieces)
+        self.update_possible_moves()
 
     def actions(self, event: Event) -> None:
         if self.is_checkmate():
@@ -67,6 +69,7 @@ class Board(Group):
                 game.state.action = Action.END_TURN
         elif game.state.action == Action.END_TURN:
             # End turn
+            self.update_possible_moves()
             game.state.action = Action.SELECT
             game.end_player_turn()
 
@@ -81,6 +84,10 @@ class Board(Group):
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         return super().update(*args, **kwargs)
+
+    def update_possible_moves(self) -> None:
+        for piece in self.pieces:
+            piece.update_possible_moves()
 
     def gen_board(self) -> None:
         """
@@ -217,6 +224,7 @@ class Board(Group):
         Attacker Piece captures the defender Piece
         """
         attacker.move(defender)
+        game.pieces.remove(defender)
         self.remove_piece(defender)
 
     def remove_piece(self, piece: Piece) -> None:

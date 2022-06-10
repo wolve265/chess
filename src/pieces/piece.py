@@ -1,4 +1,3 @@
-import time
 import pygame
 
 from pygame import Rect
@@ -27,14 +26,13 @@ class Piece(Square):
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
         self.background_color = Settings.BLACK_COLOR if is_white else Settings.WHITE_COLOR
-        self.moves: set[Coord] = set()
+        self.moves: set[Coord] = set() #FIXME: Is this needed?
         self.possible_moves = AbstractGroup()
         self.image = self.get_image()
         self.rect = self.get_rect()
-        self.setup()
+        self.pawn = False
 
     def setup(self) -> None:
-        self.update_moves()
         self.update_possible_moves()
 
     def draw(self, surface: Surface) -> None:
@@ -44,14 +42,12 @@ class Piece(Square):
     def update(self, *args: Any, **kwargs: Any) -> None:
         return super().update(*args, **kwargs)
 
-    def update_moves(self) -> None:
+    def move_generator(self, direction: Coord) -> Coord:
         """
-        Updates moves
+        Generator for moves in specified direction
         """
-        self.moves = set()
-        for direction in self.directions:
-            for i in range(1, self.move_range+1):
-                self.moves.add(direction * Coord(i, i))
+        for i in range(1, self.move_range + 1):
+            yield direction * Coord(i, i)
 
     def update_possible_moves(self) -> None:
         """
@@ -59,9 +55,23 @@ class Piece(Square):
         """
         self.possible_moves.empty()
 
-        for square in game.squares:
-            if (square.coord - self.coord) in self.moves:
-                self.possible_moves.add(square)
+        for direction in self.directions:
+            for move in self.move_generator(direction):
+                for square in game.squares:
+                    if (self.coord + move) != square.coord:
+                        continue
+                    for piece in game.pieces:
+                        if (self.coord + move) == piece.coord:
+                            if not self.pawn:
+                                self.possible_moves.add(square)
+                            break
+                    else:
+                        self.possible_moves.add(square)
+                        continue
+                    break
+                else:
+                    continue
+                break
 
     def get_image(self) -> Surface:
         """
@@ -91,4 +101,3 @@ class Piece(Square):
         self.coord = square.coord
         self.full_rect = self.get_full_rect()
         self.rect = self.get_rect()
-        self.update_possible_moves()

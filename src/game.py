@@ -37,6 +37,7 @@ class Game:
         self.font = pygame.font.Font(None, Settings.FONT_SIZE)
         self.state = State()
         self.squares = AbstractGroup()
+        self.pieces = AbstractGroup()
 
     def end_player_turn(self) -> None:
         """
