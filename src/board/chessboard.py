@@ -16,6 +16,7 @@ from events import *
 from game import *
 from pieces.generator import Generator
 from pieces.piece import Piece
+from pieces.pawn import Pawn
 from settings import Settings
 
 
@@ -164,6 +165,15 @@ class Board(Group):
             if piece.full_rect.colliderect(square.full_rect):
                 return piece
 
+    def get_defender_piece_en_passant(self, square: Square) -> Piece:
+        """
+        Returns defender Piece object during en passant
+        """
+        for square_temp in self.get_all_squares():
+            for move in Pawn.directions[game.state.player.value]:
+                if (square_temp.coord + move) == square.coord:
+                    return self.get_piece(square_temp)
+
     def try_select_piece(self) -> bool:
         """
         Tries to select a piece. If successful, returns True
@@ -206,6 +216,9 @@ class Board(Group):
 
         # Move a piece to an empty square
         if self.piece_pressed is None:
+            # En Passant
+            if self.piece_selected.pawn and self.piece_selected.can_en_passant:
+                self.en_passant(self.piece_selected, self.square_pressed)
             self.move_piece(self.piece_selected, self.square_pressed)
             return True
 
@@ -224,6 +237,15 @@ class Board(Group):
         Attacker Piece captures the defender Piece
         """
         attacker.move(defender)
+        game.pieces.remove(defender)
+        self.remove_piece(defender)
+
+    def en_passant(self, attacker: Piece, square: Square) -> None:
+        """
+        Performs an en passant
+        """
+        defender = self.get_defender_piece_en_passant(square)
+        attacker.move(square)
         game.pieces.remove(defender)
         self.remove_piece(defender)
 

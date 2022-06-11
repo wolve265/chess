@@ -8,8 +8,8 @@ from settings import Settings
 
 
 class Player(Enum):
-    WHITE = auto()
-    BLACK = auto()
+    WHITE = 1
+    BLACK = 0
 
 
 class Action(Enum):

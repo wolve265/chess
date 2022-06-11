@@ -94,6 +94,15 @@ class Piece(Square):
     def get_rect(self) -> Rect:
         return self.image.get_rect(center=self.full_rect.center)
 
+    def clear_pawns_flag(self) -> None:
+        """
+        Clears all pawns flag
+        """
+        for piece in game.pieces:
+            if piece.pawn:
+                piece.double_moved = False
+                piece.can_en_passant = False
+
     def move(self, square: Square) -> None:
         """
         Moves a Piece to desired square
@@ -101,3 +110,4 @@ class Piece(Square):
         self.coord = square.coord
         self.full_rect = self.get_full_rect()
         self.rect = self.get_rect()
+        self.clear_pawns_flag()
