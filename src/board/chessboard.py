@@ -269,7 +269,10 @@ class Board(Group):
         if self.piece_pressed is None:
             # Pawns En Passant
             if isinstance(self.piece_selected, Pawn) and self.piece_selected.can_en_passant:
-                self.en_passant(self.piece_selected, self.square_pressed)
+                for pawn_capture_square in self.piece_selected.capture_square_generator():
+                    if pawn_capture_square.coord == self.square_pressed.coord:
+                        self.en_passant(self.piece_selected, self.square_pressed)
+                        return True
             # Move a piece to an empty square
             self.move_piece(self.piece_selected, self.square_pressed)
             return True

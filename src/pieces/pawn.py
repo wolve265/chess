@@ -74,3 +74,9 @@ class Pawn(Piece):
         if game.turn_counter - self.double_moved_turn > 1:
             self.double_moved = False
         return super().update_flags()
+
+    def capture_square_generator(self) -> Square:
+        for capture_move in self.capture_directions:
+            for square in game.squares:
+                if isinstance(square, Square) and (self.coord + capture_move) == square.coord:
+                    yield square
