@@ -23,15 +23,17 @@ class Pawn(Piece):
         self.capture_directions = self.capture_directions[is_white]
         self.double_direction = self.double_direction[is_white]
         self.en_passant_directions = self.en_passant_directions[is_white]
-        self.double_moved = False
+        self.double_moved   = False
         self.can_en_passant = False
+        self.double_moved_turn   = 0
+        self.can_en_passant_turn = 0
 
     def move(self, square: Square) -> None:
         self.move_range = 1
-        double_moved = True if (self.coord + self.double_direction) == square.coord else False
-        super().move(square)
-        # Must be aftet super().move, because it clears double_moved flag
-        self.double_moved = double_moved
+        if (self.coord + self.double_direction) == square.coord:
+            self.double_moved = True
+            self.double_moved_turn = game.turn_counter
+        return super().move(square)
 
     def update_possible_moves(self) -> None:
         self.possible_moves.empty()
@@ -63,11 +65,12 @@ class Pawn(Piece):
                         self.possible_moves.add(square)
                     elif isinstance(piece, Pawn) and (self.coord + en_passant_move) == piece.coord and piece.double_moved:
                         self.can_en_passant = True
+                        self.can_en_passant_turn = game.turn_counter
                         self.possible_moves.add(square)
 
-    def clear_disposable_flags(self) -> None:
-        for piece in game.pieces:
-            if isinstance(piece, Pawn):
-                piece.double_moved = False
-                piece.can_en_passant = False
-        return super().clear_disposable_flags()
+    def update_flags(self) -> None:
+        if game.turn_counter - self.can_en_passant_turn > 1:
+            self.can_en_passant = False
+        if game.turn_counter - self.double_moved_turn > 1:
+            self.double_moved = False
+        return super().update_flags()

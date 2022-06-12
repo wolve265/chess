@@ -91,9 +91,9 @@ class Piece(Square):
     def get_rect(self) -> Rect:
         return self.image.get_rect(center=self.full_rect.center)
 
-    def clear_disposable_flags(self) -> None:
+    def update_flags(self) -> None:
         """
-        Clears all disposable flags
+        Updates all flags
         """
         pass
 
@@ -104,4 +104,3 @@ class Piece(Square):
         self.coord = square.coord
         self.full_rect = self.get_full_rect()
         self.rect = self.get_rect()
-        self.clear_disposable_flags()

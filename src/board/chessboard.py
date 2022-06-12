@@ -42,8 +42,7 @@ class Board(Group):
         game.squares.add(self.squares)
         self.gen_pieces()
         game.pieces.add(self.pieces)
-        self.update_possible_moves()
-        self.update_checked_squares()
+        self.update_board_at_end_turn()
 
     def actions(self, event: Event) -> None:
         if self.is_checkmate():
@@ -72,8 +71,7 @@ class Board(Group):
                 game.state.action = Action.END_TURN
         elif game.state.action == Action.END_TURN:
             # End turn
-            self.update_possible_moves()
-            self.update_checked_squares()
+            self.update_board_at_end_turn()
             game.state.action = Action.SELECT
             game.end_player_turn()
 
@@ -88,6 +86,13 @@ class Board(Group):
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         return super().update(*args, **kwargs)
+
+    def update_pieces_flags(self) -> None:
+        """
+        Updates pieces flags of all Pieces
+        """
+        for piece in self.pieces:
+            piece.update_flags()
 
     def update_possible_moves(self) -> None:
         """
@@ -109,6 +114,11 @@ class Board(Group):
                     square.checked_by.add(Player.WHITE)
                 elif isinstance(group, BlackMoves):
                     square.checked_by.add(Player.BLACK)
+
+    def update_board_at_end_turn(self) -> None:
+        self.update_pieces_flags()
+        self.update_possible_moves()
+        self.update_checked_squares()
 
     def gen_board(self) -> None:
         """

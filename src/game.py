@@ -36,6 +36,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, Settings.FONT_SIZE)
         self.state = State()
+        self.turn_counter = 1
         self.squares = AbstractGroup()
         self.pieces = AbstractGroup()
 
@@ -43,6 +44,7 @@ class Game:
         """
         Ends player turn
         """
+        self.turn_counter += 1
         if self.state.player == Player.WHITE:
             self.state.player = Player.BLACK
         else:
