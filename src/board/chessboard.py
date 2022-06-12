@@ -1,4 +1,3 @@
-from numpy import isin
 import pygame
 
 from multipledispatch import dispatch
@@ -39,11 +38,85 @@ class Board(Group):
         super().__init__(self.squares, self.pieces, *sprites)
 
     def setup(self) -> None:
-        self.gen_board()
+        self.setup_board()
         game.squares.add(self.squares)
-        self.gen_pieces()
+        self.setup_pieces()
         game.pieces.add(self.pieces)
         self.update_board_at_end_turn()
+
+    def setup_board(self) -> None:
+        """
+        Setups all board groups and sprites
+        """
+        for i in range(Settings.ROW_NUM):
+            self.rows.append(Row(i))
+            self.cols.append(Col(i))
+        for row_i in range(Settings.ROW_NUM):
+            for col_i in range(Settings.COL_NUM):
+                self.squares.append(Square(Coord(row_i, col_i), self.rows[row_i], self.cols[col_i]))
+
+    def setup_pieces(self) -> None:
+        """
+        Setups all pieces
+        """
+        pieces_gen = Generator(self.rows, self.cols)
+        self.pieces = pieces_gen.run()
+
+    def draw(self, surface: Surface) -> List[Rect]:
+        game.screen.fill(Settings.BACKGROUND_COLOR)
+        for square in self.squares:
+            square.draw(surface)
+        for row, col in zip(self.rows, self.cols):
+            row.draw(surface)
+            col.draw(surface)
+        return super().draw(surface)
+
+    @dispatch(tuple)
+    def get_square(self, pos: tuple[int]) -> Square | None:
+        """
+        Returns Square object from pos
+        """
+        for square in self.squares:
+            if square.full_rect.collidepoint(pos):
+                return square
+        return None
+
+    @dispatch(Piece)
+    def get_square(self, piece: Piece) -> Square:
+        """
+        Returns Square object of the same position as piece
+        """
+        for square in self.squares:
+            if square.full_rect.colliderect(piece.full_rect):
+                return square
+
+    @dispatch(tuple)
+    def get_piece(self, pos: tuple[int]) -> Piece | None:
+        """
+        Returns Piece object from pos
+        """
+        for piece in self.pieces:
+            if piece.full_rect.collidepoint(pos):
+                return piece
+        return None
+
+    @dispatch(Square)
+    def get_piece(self, square: Square) -> Piece:
+        """
+        Returns Piece object of the same position as square
+        """
+        for piece in self.pieces:
+            if piece.full_rect.colliderect(square.full_rect):
+                return piece
+
+    def get_defender_piece_en_passant(self, square: Square) -> Piece:
+        """
+        Returns defender Piece object during en passant
+        """
+        for square_temp in self.squares:
+            for move in Pawn.directions[game.state.player.value]:
+                if (square_temp.coord + move) == square.coord:
+                    return self.get_piece(square_temp)
 
     def actions(self, event: Event) -> None:
         if self.update_checkmate():
@@ -70,25 +143,28 @@ class Board(Group):
             # ... move selected piece or ...
             elif self.try_move_piece():
                 game.state.action = Action.END_TURN
+            # .. capture selected piece or ...
             elif self.try_capture_piece():
                 game.state.action = Action.END_TURN
+            # ... deselect piece
+            elif self.try_deselect_piece():
+                game.state.action = Action.SELECT
         elif game.state.action == Action.END_TURN:
             # End turn
             self.update_board_at_end_turn()
             game.state.action = Action.SELECT
             game.end_player_turn()
 
-    def draw(self, surface: Surface) -> List[Rect]:
-        game.screen.fill(Settings.BACKGROUND_COLOR)
-        for square in self.squares:
-            square.draw(surface)
-        for row, col in zip(self.rows, self.cols):
-            row.draw(surface)
-            col.draw(surface)
-        return super().draw(surface)
-
-    def update(self, *args: Any, **kwargs: Any) -> None:
-        return super().update(*args, **kwargs)
+    def update_board_at_end_turn(self) -> None:
+        """
+        Performs all updates needed at the end of player turn
+        """
+        self.update_pieces_flags()
+        self.update_possible_moves_and_captures()
+        self.update_checked_squares()
+        self.update_kings_moves()
+        self.update_check()
+        self.update_checkmate()
 
     def update_pieces_flags(self) -> None:
         """
@@ -97,9 +173,9 @@ class Board(Group):
         for piece in self.pieces:
             piece.update_flags()
 
-    def update_possible_moves(self) -> None:
+    def update_possible_moves_and_captures(self) -> None:
         """
-        Updates possible moves of all Pieces
+        Updates possible moves and captures of all Pieces
         """
         for piece in self.pieces:
             piece.update_possible_moves_and_captures()
@@ -141,91 +217,6 @@ class Board(Group):
         # TODO: Implement checkmate functionality
         return False
 
-    def update_board_at_end_turn(self) -> None:
-        self.update_pieces_flags()
-        self.update_possible_moves()
-        self.update_checked_squares()
-        self.update_kings_moves()
-        self.update_check()
-        self.update_checkmate()
-
-    def gen_board(self) -> None:
-        """
-        Generates all board groups and sprites
-        """
-        for i in range(Settings.ROW_NUM):
-            self.rows.append(Row(i))
-            self.cols.append(Col(i))
-        for row_i in range(Settings.ROW_NUM):
-            for col_i in range(Settings.COL_NUM):
-                self.squares.append(Square(Coord(row_i, col_i), self.rows[row_i], self.cols[col_i]))
-
-    def gen_pieces(self) -> None:
-        """
-        Generates all pieces
-        """
-        pieces_gen = Generator(self.rows, self.cols)
-        self.pieces = pieces_gen.run()
-
-    def get_all_squares(self) -> Sequence[Square]:
-        """
-        Gets all Square objects from Board sprites
-        """
-        return [sprite for sprite in self.sprites() if type(sprite) is Square]
-
-    @dispatch(tuple)
-    def get_square(self, pos: tuple[int]) -> Square | None:
-        """
-        Returns Square object from pos
-        """
-        for square in self.get_all_squares():
-            if square.full_rect.collidepoint(pos):
-                return square
-        return None
-
-    @dispatch(Piece)
-    def get_square(self, piece: Piece) -> Square:
-        """
-        Returns Square object of the same position as piece
-        """
-        for square in self.get_all_squares():
-            if square.full_rect.colliderect(piece.full_rect):
-                return square
-
-    def get_all_pieces(self) -> Sequence[Piece]:
-        """
-        Gets all Piece objects from Board sprites
-        """
-        return [sprite for sprite in self.sprites() if isinstance(sprite, Piece)]
-
-    @dispatch(tuple)
-    def get_piece(self, pos: tuple[int]) -> Piece | None:
-        """
-        Returns Piece object from pos
-        """
-        for piece in self.get_all_pieces():
-            if piece.full_rect.collidepoint(pos):
-                return piece
-        return None
-
-    @dispatch(Square)
-    def get_piece(self, square: Square) -> Piece:
-        """
-        Returns Piece object of the same position as square
-        """
-        for piece in self.get_all_pieces():
-            if piece.full_rect.colliderect(square.full_rect):
-                return piece
-
-    def get_defender_piece_en_passant(self, square: Square) -> Piece:
-        """
-        Returns defender Piece object during en passant
-        """
-        for square_temp in self.get_all_squares():
-            for move in Pawn.directions[game.state.player.value]:
-                if (square_temp.coord + move) == square.coord:
-                    return self.get_piece(square_temp)
-
     def try_select_piece(self) -> bool:
         """
         Tries to select a piece. If successful, returns True
@@ -238,7 +229,9 @@ class Board(Group):
             return False
 
         if self.piece_selected is not None:
-            for square in self.get_all_squares():
+            if self.piece_pressed == self.piece_selected:
+                return False
+            for square in self.squares:
                 square.render_reset()
 
         self.piece_selected = self.piece_pressed
@@ -267,7 +260,7 @@ class Board(Group):
         if not self.square_pressed in self.piece_selected.possible_moves:
             return False
 
-        for square in self.get_all_squares():
+        for square in self.squares:
             square.render_reset()
 
         # Pawns En Passant
@@ -292,11 +285,22 @@ class Board(Group):
         if not self.square_pressed in self.piece_selected.possible_captures:
             return False
 
-        for square in self.get_all_squares():
+        for square in self.squares:
             square.render_reset()
 
         self.capture_piece(self.piece_selected, self.piece_pressed)
         return True
+
+    def try_deselect_piece(self) -> bool:
+        """
+        Tries to deselect a piece. If successful, returns True
+        """
+        if (self.square_pressed and self.piece_pressed is None) or \
+           (self.piece_pressed is not None and self.piece_pressed == self.piece_selected):
+            self.piece_selected = None
+            for square in self.squares:
+                square.render_reset()
+            return True
 
     def move_piece(self, piece: Piece, square: Square) -> None:
         """
@@ -309,7 +313,6 @@ class Board(Group):
         Attacker Piece captures the defender Piece
         """
         attacker.move(defender)
-        game.pieces.remove(defender)
         self.remove_piece(defender)
 
     def en_passant(self, attacker: Piece, square: Square) -> None:
@@ -318,12 +321,14 @@ class Board(Group):
         """
         defender = self.get_defender_piece_en_passant(square)
         attacker.move(square)
-        game.pieces.remove(defender)
         self.remove_piece(defender)
 
     def remove_piece(self, piece: Piece) -> None:
         """
         Removes Piece from board
         """
-        piece.kill()
+        game.pieces.remove(piece)
+        self.pieces.remove(piece)
         piece.possible_moves.empty()
+        piece.possible_captures.empty()
+        piece.kill()
