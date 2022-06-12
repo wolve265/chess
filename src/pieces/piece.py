@@ -10,6 +10,7 @@ import utils
 from board.coord import Coord
 from board.square import Square
 from game import *
+from pieces.moves import WhiteMoves, BlackMoves
 from settings import Settings
 
 
@@ -25,8 +26,7 @@ class Piece(Square):
         super().__init__(coord, *groups)
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
-        self.background_color = Settings.BLACK_COLOR if is_white else Settings.WHITE_COLOR
-        self.possible_moves = AbstractGroup()
+        self.possible_moves = WhiteMoves() if is_white else BlackMoves()
         self.image = self.get_image()
         self.rect = self.get_rect()
 
