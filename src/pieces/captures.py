@@ -1,13 +1,13 @@
 from pygame.sprite import Group
 from typing import *
 
-class Moves(Group):
+class Captures(Group):
     pass
 
 
-class WhiteMoves(Moves):
+class WhiteCaptures(Captures):
     pass
 
 
-class BlackMoves(Moves):
+class BlackCaptures(Captures):
     pass

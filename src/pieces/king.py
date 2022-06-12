@@ -22,21 +22,16 @@ class King(Piece):
         self.possible_moves.empty()
 
         for direction in self.directions:
-            for move in self.move_generator(direction):
-                for square in game.squares:
-                    if isinstance(square, Square) and (self.coord + move) != square.coord:
+            for square in self.move_square_generator(direction):
+                if self.player.opponent() in square.checked_by:
+                    continue
+                for piece in game.pieces:
+                    if not isinstance(piece, Piece):
                         continue
-                    if self.player.opponent() in square.checked_by:
-                        continue
-                    for piece in game.pieces:
-                        if isinstance(piece, Piece) and (self.coord + move) == piece.coord:
-                            self.possible_moves.add(square)
-                            break
-                    else:
-                        self.possible_moves.add(square)
-                        continue
-                    break
+                    if square.coord == piece.coord:
+                        break
                 else:
+                    self.possible_moves.add(square)
                     continue
                 break
 

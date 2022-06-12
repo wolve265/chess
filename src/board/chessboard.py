@@ -14,8 +14,8 @@ from board.coord import Coord
 from board.square import Square
 from events import *
 from game import *
+from pieces.captures import Captures, WhiteCaptures, BlackCaptures
 from pieces.generator import Generator
-from pieces.moves import Moves, WhiteMoves, BlackMoves
 from pieces.piece import Piece
 from pieces.pawn import Pawn
 from pieces.king import King
@@ -67,8 +67,10 @@ class Board(Group):
             # Change selected piece or ...
             if self.try_select_piece():
                 pass
-            # ... move selected piece
+            # ... move selected piece or ...
             elif self.try_move_piece():
+                game.state.action = Action.END_TURN
+            elif self.try_capture_piece():
                 game.state.action = Action.END_TURN
         elif game.state.action == Action.END_TURN:
             # End turn
@@ -100,7 +102,7 @@ class Board(Group):
         Updates possible moves of all Pieces
         """
         for piece in self.pieces:
-            piece.update_possible_moves()
+            piece.update_possible_moves_and_captures()
 
     def update_kings_moves(self) -> None:
         """
@@ -109,7 +111,7 @@ class Board(Group):
         """
         for piece in self.pieces:
             if isinstance(piece, King):
-                piece.update_possible_moves()
+                piece.update_possible_moves_and_captures()
 
     def update_checked_squares(self) -> None:
         """
@@ -118,11 +120,11 @@ class Board(Group):
         for square in self.squares:
             square.checked_by.clear()
             for group in square.groups():
-                if not isinstance(group, Moves):
+                if not isinstance(group, Captures):
                     continue
-                if isinstance(group, WhiteMoves):
+                if isinstance(group, WhiteCaptures):
                     square.checked_by.add(Player.WHITE)
-                elif isinstance(group, BlackMoves):
+                elif isinstance(group, BlackCaptures):
                     square.checked_by.add(Player.BLACK)
 
     def update_check(self) -> None:
@@ -244,11 +246,13 @@ class Board(Group):
         for square in self.piece_selected.possible_moves:
             if not isinstance(square, Square):
                 continue
+            square.render_possible_move()
+        for square in self.piece_selected.possible_captures:
+            if not isinstance(square, Square):
+                continue
             if piece := self.get_piece(square):
                 if piece.player != self.piece_selected.player:
                     square.render_possible_capture()
-            else:
-                square.render_possible_move()
         return True
 
     def try_move_piece(self) -> bool:
@@ -266,18 +270,31 @@ class Board(Group):
         for square in self.get_all_squares():
             square.render_reset()
 
-        if self.piece_pressed is None:
-            # Pawns En Passant
-            if isinstance(self.piece_selected, Pawn) and self.piece_selected.can_en_passant:
-                for pawn_capture_square in self.piece_selected.capture_square_generator():
-                    if pawn_capture_square.coord == self.square_pressed.coord:
-                        self.en_passant(self.piece_selected, self.square_pressed)
-                        return True
-            # Move a piece to an empty square
-            self.move_piece(self.piece_selected, self.square_pressed)
-            return True
+        # Pawns En Passant
+        if isinstance(self.piece_selected, Pawn) and self.piece_selected.can_en_passant:
+            for pawn_capture_square in self.piece_selected.capture_square_generator():
+                if pawn_capture_square.coord == self.square_pressed.coord:
+                    self.en_passant(self.piece_selected, self.square_pressed)
+                    return True
+        # Move a piece to an empty square
+        self.move_piece(self.piece_selected, self.square_pressed)
+        return True
 
-        # Move a piece to another piece = perform a capture
+    def try_capture_piece(self) -> bool:
+        """
+        Tries to capture a piece. If successful, returns True
+        """
+        # Cannot capture if no piece is pressed
+        if self.piece_pressed is None:
+            return False
+
+        # Cannot capture if square is not in possible captures
+        if not self.square_pressed in self.piece_selected.possible_captures:
+            return False
+
+        for square in self.get_all_squares():
+            square.render_reset()
+
         self.capture_piece(self.piece_selected, self.piece_pressed)
         return True
 

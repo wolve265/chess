@@ -10,6 +10,7 @@ import utils
 from board.coord import Coord
 from board.square import Square
 from game import *
+from pieces.captures import WhiteCaptures, BlackCaptures
 from pieces.moves import WhiteMoves, BlackMoves
 from settings import Settings
 
@@ -27,11 +28,12 @@ class Piece(Square):
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
         self.possible_moves = WhiteMoves() if is_white else BlackMoves()
+        self.possible_captures = WhiteCaptures() if is_white else BlackCaptures()
         self.image = self.get_image()
         self.rect = self.get_rect()
 
     def setup(self) -> None:
-        self.update_possible_moves()
+        self.update_possible_moves_and_captures()
 
     def draw(self, surface: Surface) -> None:
         # Ensures that Square.draw is overridden
@@ -40,12 +42,20 @@ class Piece(Square):
     def update(self, *args: Any, **kwargs: Any) -> None:
         return super().update(*args, **kwargs)
 
-    def move_generator(self, direction: Coord) -> Coord:
+    def move_square_generator(self, direction: Coord) -> Square:
         """
         Generator for moves in specified direction
         """
         for i in range(1, self.move_range + 1):
-            yield direction * Coord(i, i)
+            for square in game.squares:
+                if not isinstance(square, Square):
+                    continue
+                if square.coord == (direction * Coord(i, i) + self.coord):
+                    yield square
+
+    def update_possible_moves_and_captures(self) -> None:
+        self.update_possible_moves()
+        self.update_possible_captures()
 
     def update_possible_moves(self) -> None:
         """
@@ -54,19 +64,33 @@ class Piece(Square):
         self.possible_moves.empty()
 
         for direction in self.directions:
-            for move in self.move_generator(direction):
-                for square in game.squares:
-                    if isinstance(square, Square) and (self.coord + move) != square.coord:
+            for square in self.move_square_generator(direction):
+                for piece in game.pieces:
+                    if not isinstance(piece, Piece):
                         continue
-                    for piece in game.pieces:
-                        if isinstance(piece, Piece) and (self.coord + move) == piece.coord:
-                            self.possible_moves.add(square)
-                            break
-                    else:
-                        self.possible_moves.add(square)
-                        continue
-                    break
+                    if square.coord == piece.coord:
+                        break
                 else:
+                    self.possible_moves.add(square)
+                    continue
+                break
+
+    def update_possible_captures(self) -> None:
+        """
+        Updates possible captures
+        """
+        self.possible_captures.empty()
+
+        for direction in self.directions:
+            for square in self.move_square_generator(direction):
+                for piece in game.pieces:
+                    if not isinstance(piece, Piece):
+                        continue
+                    if square.coord == piece.coord:
+                        self.possible_captures.add(square)
+                        break
+                else:
+                    self.possible_captures.add(square)
                     continue
                 break
 

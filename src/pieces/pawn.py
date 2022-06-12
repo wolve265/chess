@@ -36,37 +36,24 @@ class Pawn(Piece):
         return super().move(square)
 
     def update_possible_moves(self) -> None:
-        self.possible_moves.empty()
+        super().update_possible_moves()
 
-        # Basic moves
-        for direction in self.directions:
-            for move in self.move_generator(direction):
-                for square in game.squares:
-                    if isinstance(square, Square) and (self.coord + move) != square.coord:
-                        continue
-                    for piece in game.pieces:
-                        if isinstance(piece, Piece) and (self.coord + move) == piece.coord:
-                            break
-                    else:
-                        self.possible_moves.add(square)
-                        continue
-                    break
-                else:
-                    continue
-                break
-
-        # Capture moves
+        # En Passant Moves
         for capture_move, en_passant_move in zip(self.capture_directions, self.en_passant_directions):
             for square in game.squares:
                 if isinstance(square, Square) and (self.coord + capture_move) != square.coord:
                     continue
                 for piece in game.pieces:
-                    if isinstance(piece, Piece) and (self.coord + capture_move) == piece.coord:
-                        self.possible_moves.add(square)
-                    elif isinstance(piece, Pawn) and (self.coord + en_passant_move) == piece.coord and piece.double_moved:
+                    if isinstance(piece, Pawn) and (self.coord + en_passant_move) == piece.coord and piece.double_moved:
                         self.can_en_passant = True
                         self.can_en_passant_turn = game.turn_counter
                         self.possible_moves.add(square)
+
+    def update_possible_captures(self) -> None:
+        self.possible_captures.empty()
+
+        for square in self.capture_square_generator():
+            self.possible_captures.add(square)
 
     def update_flags(self) -> None:
         if game.turn_counter - self.can_en_passant_turn > 1:
