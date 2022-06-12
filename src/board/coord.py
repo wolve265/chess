@@ -17,6 +17,9 @@ class Coord:
     def __mul__(self, other) -> bool:
         return Coord(self.row_i * other.row_i, self.col_i * other.col_i)
 
+    def __eq__(self,  other) -> bool:
+        return True if self.row_i == other.row_i and self.col_i == other.col_i else False
+
     def __str__(self) -> str:
         row_str = self.get_row_str()
         col_str = self.get_col_str()
