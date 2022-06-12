@@ -192,6 +192,8 @@ class Board(Group):
         self.piece_selected = self.piece_pressed
         self.get_square(self.piece_selected).render_selection()
         for square in self.piece_selected.possible_moves:
+            if not isinstance(square, Square):
+                continue
             if piece := self.get_piece(square):
                 if piece.player != self.piece_selected.player:
                     square.render_possible_capture()
@@ -214,11 +216,11 @@ class Board(Group):
         for square in self.get_all_squares():
             square.render_reset()
 
-        # Move a piece to an empty square
         if self.piece_pressed is None:
-            # En Passant
-            if self.piece_selected.pawn and self.piece_selected.can_en_passant:
+            # Pawns En Passant
+            if isinstance(self.piece_selected, Pawn) and self.piece_selected.can_en_passant:
                 self.en_passant(self.piece_selected, self.square_pressed)
+            # Move a piece to an empty square
             self.move_piece(self.piece_selected, self.square_pressed)
             return True
 

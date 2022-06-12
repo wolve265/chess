@@ -23,7 +23,6 @@ class Pawn(Piece):
         self.capture_directions = self.capture_directions[is_white]
         self.double_direction = self.double_direction[is_white]
         self.en_passant_directions = self.en_passant_directions[is_white]
-        self.pawn = True
         self.double_moved = False
         self.can_en_passant = False
 
@@ -35,15 +34,40 @@ class Pawn(Piece):
         self.double_moved = double_moved
 
     def update_possible_moves(self) -> None:
-        super().update_possible_moves()
+        self.possible_moves.empty()
 
+        # Basic moves
+        for direction in self.directions:
+            for move in self.move_generator(direction):
+                for square in game.squares:
+                    if isinstance(square, Square) and (self.coord + move) != square.coord:
+                        continue
+                    for piece in game.pieces:
+                        if isinstance(piece, Piece) and (self.coord + move) == piece.coord:
+                            break
+                    else:
+                        self.possible_moves.add(square)
+                        continue
+                    break
+                else:
+                    continue
+                break
+
+        # Capture moves
         for capture_move, en_passant_move in zip(self.capture_directions, self.en_passant_directions):
             for square in game.squares:
-                if (self.coord + capture_move) != square.coord:
+                if isinstance(square, Square) and (self.coord + capture_move) != square.coord:
                     continue
                 for piece in game.pieces:
-                    if (self.coord + capture_move) == piece.coord:
+                    if isinstance(piece, Piece) and (self.coord + capture_move) == piece.coord:
                         self.possible_moves.add(square)
-                    elif (self.coord + en_passant_move) == piece.coord and piece.pawn and piece.double_moved:
+                    elif isinstance(piece, Pawn) and (self.coord + en_passant_move) == piece.coord and piece.double_moved:
                         self.can_en_passant = True
                         self.possible_moves.add(square)
+
+    def clear_disposable_flags(self) -> None:
+        for piece in game.pieces:
+            if isinstance(piece, Pawn):
+                piece.double_moved = False
+                piece.can_en_passant = False
+        return super().clear_disposable_flags()

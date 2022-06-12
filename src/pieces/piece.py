@@ -26,11 +26,9 @@ class Piece(Square):
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
         self.background_color = Settings.BLACK_COLOR if is_white else Settings.WHITE_COLOR
-        self.moves: set[Coord] = set() #FIXME: Is this needed?
         self.possible_moves = AbstractGroup()
         self.image = self.get_image()
         self.rect = self.get_rect()
-        self.pawn = False
 
     def setup(self) -> None:
         self.update_possible_moves()
@@ -58,12 +56,11 @@ class Piece(Square):
         for direction in self.directions:
             for move in self.move_generator(direction):
                 for square in game.squares:
-                    if (self.coord + move) != square.coord:
+                    if isinstance(square, Square) and (self.coord + move) != square.coord:
                         continue
                     for piece in game.pieces:
-                        if (self.coord + move) == piece.coord:
-                            if not self.pawn:
-                                self.possible_moves.add(square)
+                        if isinstance(piece, Piece) and (self.coord + move) == piece.coord:
+                            self.possible_moves.add(square)
                             break
                     else:
                         self.possible_moves.add(square)
@@ -94,14 +91,11 @@ class Piece(Square):
     def get_rect(self) -> Rect:
         return self.image.get_rect(center=self.full_rect.center)
 
-    def clear_pawns_flag(self) -> None:
+    def clear_disposable_flags(self) -> None:
         """
-        Clears all pawns flag
+        Clears all disposable flags
         """
-        for piece in game.pieces:
-            if piece.pawn:
-                piece.double_moved = False
-                piece.can_en_passant = False
+        pass
 
     def move(self, square: Square) -> None:
         """
@@ -110,4 +104,4 @@ class Piece(Square):
         self.coord = square.coord
         self.full_rect = self.get_full_rect()
         self.rect = self.get_rect()
-        self.clear_pawns_flag()
+        self.clear_disposable_flags()
