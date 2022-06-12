@@ -11,6 +11,9 @@ class Player(Enum):
     WHITE = 1
     BLACK = 0
 
+    def opponent(self) -> 'Player':
+        return Player(not self.value)
+
 
 class Action(Enum):
     SELECT = auto()

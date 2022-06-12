@@ -18,6 +18,7 @@ from pieces.generator import Generator
 from pieces.moves import Moves, WhiteMoves, BlackMoves
 from pieces.piece import Piece
 from pieces.pawn import Pawn
+from pieces.king import King
 from settings import Settings
 
 
@@ -45,7 +46,7 @@ class Board(Group):
         self.update_board_at_end_turn()
 
     def actions(self, event: Event) -> None:
-        if self.is_checkmate():
+        if self.update_checkmate():
             gen_event(END_GAME)
             return
 
@@ -101,6 +102,15 @@ class Board(Group):
         for piece in self.pieces:
             piece.update_possible_moves()
 
+    def update_kings_moves(self) -> None:
+        """
+        Updates possible moves of Kings.
+        Used after update_checked_squares to remove checked squares from moves.
+        """
+        for piece in self.pieces:
+            if isinstance(piece, King):
+                piece.update_possible_moves()
+
     def update_checked_squares(self) -> None:
         """
         Updates checked flag of all Squares
@@ -115,10 +125,27 @@ class Board(Group):
                 elif isinstance(group, BlackMoves):
                     square.checked_by.add(Player.BLACK)
 
+    def update_check(self) -> None:
+        """
+        Updates check flag according to current board state
+        """
+        # TODO: Implement check functionality
+        return False
+
+    def update_checkmate(self) -> None:
+        """
+        Updates checkmate flag according to current board state
+        """
+        # TODO: Implement checkmate functionality
+        return False
+
     def update_board_at_end_turn(self) -> None:
         self.update_pieces_flags()
         self.update_possible_moves()
         self.update_checked_squares()
+        self.update_kings_moves()
+        self.update_check()
+        self.update_checkmate()
 
     def gen_board(self) -> None:
         """
@@ -137,13 +164,6 @@ class Board(Group):
         """
         pieces_gen = Generator(self.rows, self.cols)
         self.pieces = pieces_gen.run()
-
-    def is_checkmate(self) -> bool:
-        """
-        Returns True if there is a checkmate
-        """
-        # TODO: Implement checkmate functionality
-        return False
 
     def get_all_squares(self) -> Sequence[Square]:
         """
