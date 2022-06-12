@@ -30,6 +30,7 @@ class Square(Sprite):
         self.full_rect = self.get_full_rect()
         self.image = game.font.render(f"", True, Settings.BLACK_COLOR)
         self.rect = self.image.get_rect(center=self.full_rect.center)
+        self.checked_by = set()
 
     def __repr__(self) -> str:
         return f'\n{super().__repr__()} | coord = ({self.coord})'

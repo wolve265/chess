@@ -15,6 +15,7 @@ from board.square import Square
 from events import *
 from game import *
 from pieces.generator import Generator
+from pieces.moves import Moves, WhiteMoves, BlackMoves
 from pieces.piece import Piece
 from pieces.pawn import Pawn
 from settings import Settings
@@ -42,6 +43,7 @@ class Board(Group):
         self.gen_pieces()
         game.pieces.add(self.pieces)
         self.update_possible_moves()
+        self.update_checked_squares()
 
     def actions(self, event: Event) -> None:
         if self.is_checkmate():
@@ -71,6 +73,7 @@ class Board(Group):
         elif game.state.action == Action.END_TURN:
             # End turn
             self.update_possible_moves()
+            self.update_checked_squares()
             game.state.action = Action.SELECT
             game.end_player_turn()
 
@@ -87,8 +90,25 @@ class Board(Group):
         return super().update(*args, **kwargs)
 
     def update_possible_moves(self) -> None:
+        """
+        Updates possible moves of all Pieces
+        """
         for piece in self.pieces:
             piece.update_possible_moves()
+
+    def update_checked_squares(self) -> None:
+        """
+        Updates checked flag of all Squares
+        """
+        for square in self.squares:
+            square.checked_by.clear()
+            for group in square.groups():
+                if not isinstance(group, Moves):
+                    continue
+                if isinstance(group, WhiteMoves):
+                    square.checked_by.add(Player.WHITE)
+                elif isinstance(group, BlackMoves):
+                    square.checked_by.add(Player.BLACK)
 
     def gen_board(self) -> None:
         """
