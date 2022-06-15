@@ -41,10 +41,15 @@ class Pawn(Piece):
         # En Passant Moves
         for capture_move, en_passant_move in zip(self.capture_directions, self.en_passant_directions):
             for square in game.squares:
-                if isinstance(square, Square) and (self.coord + capture_move) != square.coord:
+                if not isinstance(square, Square):
+                    continue
+                if (self.coord + capture_move) != square.coord:
                     continue
                 for piece in game.pieces:
-                    if isinstance(piece, Pawn) and (self.coord + en_passant_move) == piece.coord and piece.double_moved:
+                    if not isinstance(piece, Pawn):
+                        continue
+                    if (self.coord + en_passant_move) == piece.coord and piece.double_moved \
+                        and piece.player != self.player:
                         self.can_en_passant = True
                         self.can_en_passant_turn = game.turn_counter
                         self.possible_moves.add(square)
