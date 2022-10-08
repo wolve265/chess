@@ -109,15 +109,37 @@ class Piece(Square):
         """
         Updates Piece possible moves after Check
         """
-        # TODO: Implement update moves after Check
-        pass
+        # If multiple attackers then only King can move
+        if len(game.king_attackers.sprites()) > 1:
+            self.possible_moves.empty()
+            return
+
+        # If Knight checks then only King can move
+        if game.is_knight_king_attacker:
+            self.possible_moves.empty()
+            return
+
+        # TODO: Implement more update moves after Check
 
     def update_possible_captures_after_check(self) -> None:
         """
         Updates Piece possible captures after Check
         """
-        # TODO: Implement update captures after Check
-        pass
+        # If multiple attackers then only King can move
+        if len(game.king_attackers.sprites()) > 1:
+            self.possible_captures.empty()
+            return
+
+        # If Knight checks then can only capture Knight
+        if game.is_knight_king_attacker:
+            knight : Piece = game.king_attackers.sprites()[0]
+            for possible_capture in self.possible_captures.sprites():
+                if not isinstance(possible_capture, Square):
+                    continue
+                if possible_capture.coord != knight.coord:
+                    self.possible_captures.remove(possible_capture)
+
+        # TODO: Implement more update captures after Check
 
     def get_image(self) -> Surface:
         """

@@ -45,6 +45,7 @@ class Game:
         self.squares = AbstractGroup()
         self.pieces = AbstractGroup()
         self.king_attackers = AbstractGroup()
+        self.is_knight_king_attacker = False
 
     def end_player_turn(self) -> None:
         """

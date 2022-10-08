@@ -15,6 +15,7 @@ from events import *
 from game import *
 from pieces.captures import Captures, WhiteCaptures, BlackCaptures
 from pieces.generator import Generator
+from pieces.knight import Knight
 from pieces.piece import Piece
 from pieces.pawn import Pawn
 from pieces.king import King
@@ -133,7 +134,6 @@ class Board(Group):
                 attackers.append(sprite)
         return attackers
 
-
     def actions(self, event: Event) -> None:
         if self.update_king_checkmate():
             gen_event(END_GAME)
@@ -180,9 +180,9 @@ class Board(Group):
         self.update_checked_squares()
         self.update_king_check()
         self.update_king_checkmate()
-        self.update_kings_moves()
         if game.state.check:
             self.update_possible_moves_and_captures_after_check()
+        self.update_kings_moves()
 
     def update_pieces_flags(self) -> None:
         """
@@ -234,6 +234,7 @@ class Board(Group):
         """
         game.state.check = False
         game.king_attackers.empty()
+        game.is_knight_king_attacker = False
         for piece in self.pieces:
             if isinstance(piece, King):
                 king = piece
@@ -243,7 +244,9 @@ class Board(Group):
                     continue
                 if game.state.player in king_square.checked_by:
                     game.state.check = True
-                    game.king_attackers.add(*self.get_attackers(king_square))
+                    attackers = self.get_attackers(king_square)
+                    game.is_knight_king_attacker = any([isinstance(atk, Knight) for atk in attackers])
+                    game.king_attackers.add(*attackers)
 
     def update_king_checkmate(self) -> None:
         """
