@@ -175,6 +175,7 @@ class Board(Group):
         """
         Performs all updates needed at the end of player turn
         """
+        self.reset_squares()
         self.update_pieces_flags()
         self.update_possible_moves_and_captures()
         self.update_checked_squares()
@@ -183,6 +184,13 @@ class Board(Group):
         if game.state.check:
             self.update_possible_moves_and_captures_after_check()
         self.update_kings_moves()
+
+    def reset_squares(self) -> None:
+        """
+        Resets all Squares
+        """
+        for square in self.squares:
+            square.turn_render_reset()
 
     def update_pieces_flags(self) -> None:
         """
@@ -242,7 +250,9 @@ class Board(Group):
                 if king.player == game.state.player:
                     # Can't check own King
                     continue
+                king_square.king_checked = False
                 if game.state.player in king_square.checked_by:
+                    king_square.king_checked = True
                     game.state.check = True
                     attackers = self.get_attackers(king_square)
                     game.is_knight_king_attacker = any([isinstance(atk, Knight) for atk in attackers])
