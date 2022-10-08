@@ -44,7 +44,7 @@ class Piece(Square):
 
     def move_square_generator(self, direction: Coord) -> Square:
         """
-        Generator for moves in specified direction
+        Generator for Piece moves in specified direction
         """
         for i in range(1, self.move_range + 1):
             for square in game.squares:
@@ -54,12 +54,15 @@ class Piece(Square):
                     yield square
 
     def update_possible_moves_and_captures(self) -> None:
+        """
+        Updates Piece possible moves and captures
+        """
         self.update_possible_moves()
         self.update_possible_captures()
 
     def update_possible_moves(self) -> None:
         """
-        Updates possible moves
+        Updates Piece possible moves according to move_square_generator
         """
         self.possible_moves.empty()
 
@@ -77,7 +80,7 @@ class Piece(Square):
 
     def update_possible_captures(self) -> None:
         """
-        Updates possible captures
+        Updates Piece possible captures according to move_square_generator
         """
         self.possible_captures.empty()
 
@@ -96,7 +99,7 @@ class Piece(Square):
 
     def get_image(self) -> Surface:
         """
-        Gets the sprite image according to piece name and color
+        Gets the sprite image according to Piece name and color
         """
         # Loading image with both white and black piece
         name = self.__class__.__name__.lower()
@@ -117,13 +120,13 @@ class Piece(Square):
 
     def update_flags(self) -> None:
         """
-        Updates all flags
+        Updates the Piece flags
         """
         pass
 
     def move(self, square: Square) -> None:
         """
-        Moves a Piece to desired square
+        Moves the Piece to desired square
         """
         self.coord = square.coord
         self.full_rect = self.get_full_rect()

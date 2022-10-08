@@ -16,9 +16,15 @@ class King(Piece):
 
     def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(coord, is_white, *groups)
+
+        # Flags
         self.moved = False
 
     def update_possible_moves(self) -> None:
+        """
+        Overrides super class implementation.
+        King can't move to the defended square.
+        """
         self.possible_moves.empty()
 
         for direction in self.directions:
@@ -35,6 +41,32 @@ class King(Piece):
                     continue
                 break
 
+    def update_possible_captures(self) -> None:
+        """
+        Overrides super class implementation.
+        King can't capture the defended piece.
+        """
+        self.possible_captures.empty()
+
+        for direction in self.directions:
+            for square in self.move_square_generator(direction):
+                if self.player.opponent() in square.checked_by:
+                    continue
+                for piece in game.pieces:
+                    if not isinstance(piece, Piece):
+                        continue
+                    if square.coord == piece.coord:
+                        self.possible_captures.add(square)
+                        break
+                else:
+                    self.possible_captures.add(square)
+                    continue
+                break
+
     def move(self, square: Square) -> None:
+        """
+        Extends super implementation by
+        marking the King if moved.
+        """
         self.moved = True
         return super().move(square)

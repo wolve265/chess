@@ -23,12 +23,20 @@ class Pawn(Piece):
         self.capture_directions = self.capture_directions[is_white]
         self.double_direction = self.double_direction[is_white]
         self.en_passant_directions = self.en_passant_directions[is_white]
+
+        # Flags
         self.double_moved   = False
         self.can_en_passant = False
+
+        # Counters
         self.double_moved_turn   = 0
         self.can_en_passant_turn = 0
 
     def move(self, square: Square) -> None:
+        """
+        Extends super implementation by
+        marking the Pawn if double moved.
+        """
         self.move_range = 1
         if (self.coord + self.double_direction) == square.coord:
             self.double_moved = True
@@ -36,6 +44,10 @@ class Pawn(Piece):
         return super().move(square)
 
     def update_possible_moves(self) -> None:
+        """
+        Extends super implementation by
+        adding En Passant moves
+        """
         super().update_possible_moves()
 
         # En Passant Moves
@@ -55,12 +67,20 @@ class Pawn(Piece):
                         self.possible_moves.add(square)
 
     def update_possible_captures(self) -> None:
+        """
+        Overrides super class implementation.
+        Updates possible captures according to Pawn capture_square_generator
+        """
         self.possible_captures.empty()
 
         for square in self.capture_square_generator():
             self.possible_captures.add(square)
 
     def update_flags(self) -> None:
+        """
+        Extends super implementation by
+        updating the Pawn flags
+        """
         if game.turn_counter - self.can_en_passant_turn > 1:
             self.can_en_passant = False
         if game.turn_counter - self.double_moved_turn > 1:
@@ -68,6 +88,9 @@ class Pawn(Piece):
         return super().update_flags()
 
     def capture_square_generator(self) -> Square:
+        """
+        Generator for Pawn captures
+        """
         for capture_move in self.capture_directions:
             for square in game.squares:
                 if isinstance(square, Square) and (self.coord + capture_move) == square.coord:
