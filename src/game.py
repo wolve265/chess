@@ -25,6 +25,8 @@ class Action(Enum):
 class State:
     player: Player = Player.WHITE
     action: Action = Action.SELECT
+    check: bool = False
+    checkmate: bool = False
 
 
 class Game:
@@ -42,6 +44,7 @@ class Game:
         self.turn_counter = 1
         self.squares = AbstractGroup()
         self.pieces = AbstractGroup()
+        self.king_attackers = AbstractGroup()
 
     def end_player_turn(self) -> None:
         """

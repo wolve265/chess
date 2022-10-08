@@ -83,6 +83,7 @@ class Piece(Square):
         Updates Piece possible captures according to move_square_generator
         """
         self.possible_captures.empty()
+        self.possible_captures.add(self)
 
         for direction in self.directions:
             for square in self.move_square_generator(direction):
@@ -96,6 +97,27 @@ class Piece(Square):
                     self.possible_captures.add(square)
                     continue
                 break
+
+    def update_possible_moves_and_captures_after_check(self) -> None:
+        """
+        Updates Piece possible moves and captures after Check
+        """
+        self.update_possible_moves_after_check()
+        self.update_possible_captures_after_check()
+
+    def update_possible_moves_after_check(self) -> None:
+        """
+        Updates Piece possible moves after Check
+        """
+        # TODO: Implement update moves after Check
+        pass
+
+    def update_possible_captures_after_check(self) -> None:
+        """
+        Updates Piece possible captures after Check
+        """
+        # TODO: Implement update captures after Check
+        pass
 
     def get_image(self) -> Surface:
         """

@@ -118,8 +118,24 @@ class Board(Group):
                 if (square_temp.coord + move) == square.coord:
                     return self.get_piece(square_temp)
 
+    def get_attackers(self, square: Square) -> list[Piece]:
+        """
+        Returns attackers (list of Pieces) of specified square
+        """
+        attackers = []
+        captures_group = WhiteCaptures if game.state.player == Player.WHITE else BlackCaptures
+        for group in square.groups():
+            if not isinstance(group, captures_group):
+                continue
+            for sprite in group.sprites():
+                if not isinstance(sprite, Piece):
+                    continue
+                attackers.append(sprite)
+        return attackers
+
+
     def actions(self, event: Event) -> None:
-        if self.update_checkmate():
+        if self.update_king_checkmate():
             gen_event(END_GAME)
             return
 
@@ -162,9 +178,11 @@ class Board(Group):
         self.update_pieces_flags()
         self.update_possible_moves_and_captures()
         self.update_checked_squares()
+        self.update_king_check()
+        self.update_king_checkmate()
         self.update_kings_moves()
-        self.update_check()
-        self.update_checkmate()
+        if game.state.check:
+            self.update_possible_moves_and_captures_after_check()
 
     def update_pieces_flags(self) -> None:
         """
@@ -179,6 +197,13 @@ class Board(Group):
         """
         for piece in self.pieces:
             piece.update_possible_moves_and_captures()
+
+    def update_possible_moves_and_captures_after_check(self) -> None:
+        """
+        Updates possible moves and captures of all Pieces after Check
+        """
+        for piece in self.pieces:
+            piece.update_possible_moves_and_captures_after_check()
 
     def update_kings_moves(self) -> None:
         """
@@ -203,14 +228,24 @@ class Board(Group):
                 elif isinstance(group, BlackCaptures):
                     square.checked_by.add(Player.BLACK)
 
-    def update_check(self) -> None:
+    def update_king_check(self) -> None:
         """
         Updates check flag according to current board state
         """
-        # TODO: Implement check functionality
-        return False
+        game.state.check = False
+        game.king_attackers.empty()
+        for piece in self.pieces:
+            if isinstance(piece, King):
+                king = piece
+                king_square = self.get_square(king)
+                if king.player == game.state.player:
+                    # Can't check own King
+                    continue
+                if game.state.player in king_square.checked_by:
+                    game.state.check = True
+                    game.king_attackers.add(*self.get_attackers(king_square))
 
-    def update_checkmate(self) -> None:
+    def update_king_checkmate(self) -> None:
         """
         Updates checkmate flag according to current board state
         """
