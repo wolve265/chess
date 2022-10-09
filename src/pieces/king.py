@@ -41,6 +41,14 @@ class King(Piece):
                     continue
                 break
 
+        # Remove X-Ray attacker vision
+        for attacker in game.king_attackers:
+            attacker : Piece
+            for direction in attacker.directions:
+                for square in attacker.move_square_generator(direction):
+                    if square in self.possible_moves:
+                        self.possible_moves.remove(square)
+
     def update_possible_captures(self) -> None:
         """
         Overrides super class implementation.
