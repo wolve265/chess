@@ -43,7 +43,7 @@ class Board(Group):
         game.squares.add(self.squares)
         self.setup_pieces()
         game.pieces.add(self.pieces)
-        self.perform_end_turn_calculations()
+        # self.perform_end_turn_calculations()
 
     def setup_board(self) -> None:
         """
@@ -62,6 +62,8 @@ class Board(Group):
         """
         pieces_gen = Generator(self.rows, self.cols)
         self.pieces = pieces_gen.run()
+        for piece in self.pieces:
+            piece.setup()
 
     def draw(self, surface: Surface) -> List[Rect]:
         game.screen.fill(Settings.BACKGROUND_COLOR)
@@ -128,10 +130,7 @@ class Board(Group):
         for capture_group in square.groups():
             if not isinstance(capture_group, capture_group_type):
                 continue
-            for sprite in capture_group:
-                if not isinstance(sprite, Piece):
-                    continue
-                attackers.append(sprite)
+            attackers.append(capture_group.owner)
         return attackers
 
     def actions(self, event: Event) -> None:

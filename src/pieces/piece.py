@@ -33,6 +33,8 @@ class Piece(Square):
         self.rect = self.get_rect()
 
     def setup(self) -> None:
+        self.possible_moves.owner = self
+        self.possible_captures.owner = self
         self.update_possible_moves_and_captures()
 
     def draw(self, surface: Surface) -> None:
@@ -83,7 +85,6 @@ class Piece(Square):
         Updates Piece possible captures according to move_square_generator
         """
         self.possible_captures.empty()
-        self.possible_captures.add(self)
 
         for direction in self.directions:
             for square in self.move_square_generator(direction):
@@ -91,7 +92,8 @@ class Piece(Square):
                     if not isinstance(piece, Piece):
                         continue
                     if square.coord == piece.coord:
-                        self.possible_captures.add(square)
+                        if piece.player != self.player:
+                            self.possible_captures.add(square)
                         break
                 else:
                     self.possible_captures.add(square)

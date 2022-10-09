@@ -75,7 +75,6 @@ class Pawn(Piece):
         Updates possible captures according to Pawn capture_square_generator
         """
         self.possible_captures.empty()
-        self.possible_captures.add(self)
 
         for square in self.capture_square_generator():
             self.possible_captures.add(square)

@@ -56,7 +56,8 @@ class King(Piece):
                     if not isinstance(piece, Piece):
                         continue
                     if square.coord == piece.coord:
-                        self.possible_captures.add(square)
+                        if piece.player != self.player:
+                            self.possible_captures.add(square)
                         break
                 else:
                     self.possible_captures.add(square)
