@@ -43,7 +43,6 @@ class Board(Group):
         game.squares.add(self.squares)
         self.setup_pieces()
         game.pieces.add(self.pieces)
-        # self.perform_end_turn_calculations()
 
     def setup_board(self) -> None:
         """
