@@ -14,6 +14,7 @@ class Chess:
     def __init__(self) -> None:
         self.running = False
         self.board = Board()
+        self.cnt = 0
 
     def run(self) -> None:
         self.running = True

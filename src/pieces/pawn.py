@@ -23,6 +23,7 @@ class Pawn(Piece):
         self.capture_directions = self.capture_directions[is_white]
         self.double_direction = self.double_direction[is_white]
         self.en_passant_directions = self.en_passant_directions[is_white]
+        self.en_passant_square: Square = None
 
         # Flags
         self.double_moved   = False
@@ -60,10 +61,12 @@ class Pawn(Piece):
                 for piece in game.pieces:
                     if not isinstance(piece, Pawn):
                         continue
-                    if (self.coord + en_passant_move) == piece.coord and piece.double_moved \
-                        and piece.player != self.player:
+                    if ((self.coord + en_passant_move) == piece.coord
+                        and piece.double_moved
+                        and piece.player != self.player):
                         self.can_en_passant = True
                         self.can_en_passant_turn = game.turn_counter
+                        self.en_passant_square = square
                         self.possible_moves.add(square)
 
     def update_possible_captures(self) -> None:
@@ -94,5 +97,7 @@ class Pawn(Piece):
         """
         for capture_move in self.capture_directions:
             for square in game.squares:
-                if isinstance(square, Square) and (self.coord + capture_move) == square.coord:
+                if not isinstance(square, Square):
+                    continue
+                if (self.coord + capture_move) == square.coord:
                     yield square

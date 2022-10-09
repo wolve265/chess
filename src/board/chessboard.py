@@ -43,7 +43,7 @@ class Board(Group):
         game.squares.add(self.squares)
         self.setup_pieces()
         game.pieces.add(self.pieces)
-        self.update_board_at_end_turn()
+        self.perform_end_turn_calculations()
 
     def setup_board(self) -> None:
         """
@@ -124,11 +124,11 @@ class Board(Group):
         Returns attackers (list of Pieces) of specified square
         """
         attackers = []
-        captures_group = WhiteCaptures if game.state.player == Player.WHITE else BlackCaptures
-        for group in square.groups():
-            if not isinstance(group, captures_group):
+        capture_group_type = WhiteCaptures if game.state.player == Player.WHITE else BlackCaptures
+        for capture_group in square.groups():
+            if not isinstance(capture_group, capture_group_type):
                 continue
-            for sprite in group.sprites():
+            for sprite in capture_group:
                 if not isinstance(sprite, Piece):
                     continue
                 attackers.append(sprite)
@@ -151,27 +151,31 @@ class Board(Group):
         if game.state.action == Action.SELECT:
             # Select a piece
             if self.try_select_piece():
-                game.state.action = Action.MOVE
+                self.set_next_action(Action.MOVE)
         elif game.state.action == Action.MOVE:
             # Change selected piece or ...
             if self.try_select_piece():
                 pass
             # ... move selected piece or ...
             elif self.try_move_piece():
-                game.state.action = Action.END_TURN
+                self.set_next_action(Action.END_TURN)
             # .. capture selected piece or ...
             elif self.try_capture_piece():
-                game.state.action = Action.END_TURN
+                self.set_next_action(Action.END_TURN)
             # ... deselect piece
             elif self.try_deselect_piece():
-                game.state.action = Action.SELECT
+                self.set_next_action(Action.SELECT)
         elif game.state.action == Action.END_TURN:
             # End turn
-            self.update_board_at_end_turn()
-            game.state.action = Action.SELECT
+            self.set_next_action(Action.SELECT)
+            self.perform_end_turn_calculations()
             game.end_player_turn()
 
-    def update_board_at_end_turn(self) -> None:
+    def set_next_action(self, action: Action) -> None:
+        game.state.action = action
+        gen_event(NEXT_ACTION)
+
+    def perform_end_turn_calculations(self) -> None:
         """
         Performs all updates needed at the end of player turn
         """
@@ -294,6 +298,9 @@ class Board(Group):
             if piece := self.get_piece(square):
                 if piece.player != self.piece_selected.player:
                     square.render_possible_capture()
+            elif isinstance(self.piece_selected, Pawn):
+                if self.piece_selected.can_en_passant:
+                    self.piece_selected.en_passant_square.render_possible_capture()
         return True
 
     def try_move_piece(self) -> bool:

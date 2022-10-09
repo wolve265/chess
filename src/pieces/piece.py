@@ -110,7 +110,7 @@ class Piece(Square):
         Updates Piece possible moves after Check
         """
         # If multiple attackers then only King can move
-        if len(game.king_attackers.sprites()) > 1:
+        if len(game.king_attackers) > 1:
             self.possible_moves.empty()
             return
 
@@ -126,14 +126,14 @@ class Piece(Square):
         Updates Piece possible captures after Check
         """
         # If multiple attackers then only King can move
-        if len(game.king_attackers.sprites()) > 1:
+        if len(game.king_attackers) > 1:
             self.possible_captures.empty()
             return
 
         # If Knight checks then can only capture Knight
         if game.is_knight_king_attacker:
             knight : Piece = game.king_attackers.sprites()[0]
-            for possible_capture in self.possible_captures.sprites():
+            for possible_capture in self.possible_captures:
                 if not isinstance(possible_capture, Square):
                     continue
                 if possible_capture.coord != knight.coord:
