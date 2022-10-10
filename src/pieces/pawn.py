@@ -51,7 +51,15 @@ class Pawn(Piece):
         """
         super().update_legal_moves()
 
-        # En Passant Moves
+    def update_captures(self) -> None:
+        """
+        Overrides super class implementation.
+        Updates captures according to Pawn capture_square_generator
+        """
+        for square in self.capture_square_generator():
+            self.captures.add(square)
+
+        # En Passant Captures
         for capture_move, en_passant_move in zip(self.capture_directions, self.en_passant_directions):
             for square in game.squares:
                 if not isinstance(square, Square):
@@ -67,15 +75,7 @@ class Pawn(Piece):
                         self.can_en_passant = True
                         self.can_en_passant_turn = game.counter
                         self.en_passant_square = square
-                        self.legal_moves.add(square)
-
-    def update_captures(self) -> None:
-        """
-        Overrides super class implementation.
-        Updates captures according to Pawn capture_square_generator
-        """
-        for square in self.capture_square_generator():
-            self.captures.add(square)
+                        self.captures.add(square)
 
     def update_defended_squares(self) -> None:
         """

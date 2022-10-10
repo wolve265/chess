@@ -39,31 +39,33 @@ class Board(Group):
         super().__init__(self.squares, self.pieces, *sprites)
 
     def setup(self) -> None:
+        """
+        Sets all up
+        """
         self.setup_board()
+
         game.squares.add(self.squares)
-        self.setup_pieces()
         game.pieces.add(self.pieces)
+        for piece in self.pieces:
+            piece.setup()
+
         game.end_player_turn()
 
     def setup_board(self) -> None:
         """
-        Setups all board groups and sprites
+        Sets up all board groups and sprites
         """
+        # Generate Rows and Cols
         for i in range(Settings.ROW_NUM):
             self.rows.append(Row(i))
             self.cols.append(Col(i))
+        # Generate Squares
         for row_i in range(Settings.ROW_NUM):
             for col_i in range(Settings.COL_NUM):
                 self.squares.append(Square(Coord(row_i, col_i), self.rows[row_i], self.cols[col_i]))
-
-    def setup_pieces(self) -> None:
-        """
-        Setups all pieces
-        """
+        # Generate Pieces
         pieces_gen = Generator(self.rows, self.cols)
         self.pieces = pieces_gen.run()
-        for piece in self.pieces:
-            piece.setup()
 
     def draw(self, surface: Surface) -> List[Rect]:
         game.screen.fill(Settings.BACKGROUND_COLOR)
@@ -141,9 +143,7 @@ class Board(Group):
         # Can't block Knight attack
         if isinstance(attacker, Knight):
             return squares
-        king_square = self.get_square(king)
-        attacker_square = self.get_square(attacker)
-        coord = king_square.coord - attacker_square.coord
+        coord = king.coord - attacker.coord
         direction = coord.get_direction()
         for square in attacker.move_square_generator(direction):
             if self.get_piece(square):
@@ -182,9 +182,16 @@ class Board(Group):
             # End turn
             self.set_next_action(Action.SELECT)
             self.perform_end_turn_calculations()
-            game.end_player_turn()
+            if game.state.checkmate:
+                gen_event(END_GAME)
+            else:
+                game.end_player_turn()
 
     def set_next_action(self, action: Action) -> None:
+        """
+        Sets next action and generates dummy event.
+        Waiting for users events are no longer required.
+        """
         game.state.action = action
         gen_event(NEXT_ACTION)
 
@@ -309,11 +316,9 @@ class Board(Group):
         """
         for piece in self.pieces:
             if piece.player.opponent() == game.state.player:
-                print(piece, piece.legal_moves, piece.captures.sprites())
                 if len(piece.legal_moves) or len(piece.captures):
                     return
-        input("Wanna exit game?")
-        gen_event(END_GAME)
+        game.state.checkmate = True
 
 
     def try_select_piece(self) -> bool:
@@ -358,19 +363,13 @@ class Board(Group):
         if self.square_pressed is None:
             return False
 
-        # Cannot move if square is not in possible moves
+        # Cannot move if square is not in legal moves
         if not self.square_pressed in self.piece_selected.legal_moves:
             return False
 
         for square in self.squares:
             square.render_reset()
 
-        # Pawns En Passant
-        if isinstance(self.piece_selected, Pawn) and self.piece_selected.can_en_passant:
-            for pawn_capture_square in self.piece_selected.capture_square_generator():
-                if pawn_capture_square.coord == self.square_pressed.coord:
-                    self.en_passant(self.piece_selected, self.square_pressed)
-                    return True
         # Move a piece to an empty square
         self.move_piece(self.piece_selected, self.square_pressed)
         return True
@@ -381,7 +380,7 @@ class Board(Group):
         """
         # Cannot capture if no piece is pressed
         if self.piece_pressed is None:
-            return False
+            return self.try_capture_en_passant()
 
         # Cannot capture if square is not in possible captures
         if not self.square_pressed in self.piece_selected.captures:
@@ -393,12 +392,33 @@ class Board(Group):
         self.capture_piece(self.piece_selected, self.piece_pressed)
         return True
 
+    def try_capture_en_passant(self) -> bool:
+        """
+        Tries to capture en passant. If successful, returns True
+        """
+        # Only Pawns can en passant
+        if not isinstance(self.piece_selected, Pawn):
+            return False
+
+        # Square must be pressed
+        if self.square_pressed is None:
+            return False
+
+        if self.piece_selected.can_en_passant:
+            for pawn_capture in self.piece_selected.captures:
+                if not isinstance(pawn_capture, Square):
+                    continue
+                if pawn_capture.coord == self.square_pressed.coord:
+                    self.en_passant(self.piece_selected, self.square_pressed)
+                    return True
+        return False
+
     def try_deselect_piece(self) -> bool:
         """
         Tries to deselect a piece. If successful, returns True
         """
-        if (self.square_pressed and self.piece_pressed is None) or \
-           (self.piece_pressed is not None and self.piece_pressed == self.piece_selected):
+        if ((self.square_pressed and self.piece_pressed is None) or
+           (self.piece_pressed is not None and self.piece_pressed == self.piece_selected)):
             self.piece_selected = None
             for square in self.squares:
                 square.render_reset()
@@ -433,4 +453,5 @@ class Board(Group):
         self.pieces.remove(piece)
         piece.legal_moves.empty()
         piece.captures.empty()
+        piece.defended_squares.empty()
         piece.kill()

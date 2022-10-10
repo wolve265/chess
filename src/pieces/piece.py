@@ -69,16 +69,17 @@ class Piece(Square):
         self.update_captures()
         self.update_defended_squares()
 
-
     def update_legal_moves(self) -> None:
         """
         Updates Piece legal moves according to move_square_generator
         """
         for direction in self.directions:
-            square: Square
             for square in self.move_square_generator(direction):
-                piece: Piece
+                if not isinstance(square, Square):
+                    continue
                 for piece in game.pieces:
+                    if not isinstance(piece, Piece):
+                        continue
                     if square.coord == piece.coord:
                         break
                 else:
@@ -91,10 +92,12 @@ class Piece(Square):
         Updates Piece possible captures according to move_square_generator
         """
         for direction in self.directions:
-            square: Square
             for square in self.move_square_generator(direction):
-                piece: Piece
+                if not isinstance(square, Square):
+                    continue
                 for piece in game.pieces:
+                    if not isinstance(piece, Piece):
+                        continue
                     if square.coord == piece.coord:
                         if self.player == piece.player.opponent():
                             self.captures.add(square)
@@ -108,10 +111,12 @@ class Piece(Square):
         Updates Piece defended squares according to move_square_generator
         """
         for direction in self.directions:
-            square: Square
             for square in self.move_square_generator(direction):
-                piece: Piece
+                if not isinstance(square, Square):
+                    continue
                 for piece in game.pieces:
+                    if not isinstance(piece, Piece):
+                        continue
                     if square.coord == piece.coord:
                         self.defended_squares.add(square)
                         break
@@ -119,7 +124,6 @@ class Piece(Square):
                     self.defended_squares.add(square)
                     continue
                 break
-
 
     def update_moves_after_check(self) -> None:
         """

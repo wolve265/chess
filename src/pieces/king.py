@@ -26,12 +26,14 @@ class King(Piece):
         King can't move to the defended square.
         """
         for direction in self.directions:
-            square: Square
             for square in self.move_square_generator(direction):
+                if not isinstance(square, Square):
+                    continue
                 if self.player.opponent() in square.defended_by:
                     continue
-                piece: Piece
                 for piece in game.pieces:
+                    if not isinstance(piece, Piece):
+                        continue
                     if square.coord == piece.coord:
                         break
                 else:
@@ -43,12 +45,14 @@ class King(Piece):
         King can't capture the defended piece.
         """
         for direction in self.directions:
-            square: Square
             for square in self.move_square_generator(direction):
+                if not isinstance(square, Square):
+                    continue
                 if self.player.opponent() in square.defended_by:
                     continue
-                piece: Piece
                 for piece in game.pieces:
+                    if not isinstance(piece, Piece):
+                        continue
                     if square.coord == piece.coord:
                         if self.player == piece.player.opponent():
                             self.captures.add(square)
@@ -63,13 +67,15 @@ class King(Piece):
         Removes xray defended squares from legal moves and captures
         """
         for attacker in game.king_attackers:
-            attacker : Piece
-            for direction in attacker.directions:
-                for square in attacker.move_square_generator(direction):
-                    if square in self.legal_moves:
-                        self.legal_moves.remove(square)
-                    if square in self.captures:
-                        self.captures.remove(square)
+            if not isinstance(attacker, Piece):
+                continue
+            coord = self.coord - attacker.coord
+            direction = coord.get_direction()
+            for square in attacker.move_square_generator(direction):
+                if square in self.legal_moves:
+                    self.legal_moves.remove(square)
+                if square in self.captures:
+                    self.captures.remove(square)
 
     def update_moves_after_check(self) -> None:
         """
