@@ -132,6 +132,26 @@ class Board(Group):
             attackers.append(capture_group.owner)
         return attackers
 
+    def get_squares_between_king_and_attacker(self, king: King, attacker: Piece) -> list[Square]:
+        """
+        Returns squares between king and attacker
+        """
+        squares = []
+        # Can't block Knight attack
+        if isinstance(attacker, Knight):
+            return squares
+        king_square = self.get_square(king)
+        attacker_square = self.get_square(attacker)
+        coord = king_square.coord - attacker_square.coord
+        direction = coord.get_direction()
+        # if game.state.player == Player.WHITE:
+        #     direction *= Coord(-1, 1)
+        for square in attacker.move_square_generator(direction):
+            if self.get_piece(square):
+                break
+            squares.append(square)
+        return squares
+
     def actions(self, event: Event) -> None:
         if self.update_king_checkmate():
             gen_event(END_GAME)
@@ -182,10 +202,12 @@ class Board(Group):
         self.update_possible_moves_and_captures()
         self.update_checked_squares()
         self.update_king_check()
-        self.update_king_checkmate()
         if game.state.check:
+            self.update_squares_between_king_and_attacker()
             self.update_possible_moves_and_captures_after_check()
         self.update_kings_moves()
+        if game.state.check:
+            self.update_king_checkmate()
 
     def reset_squares(self) -> None:
         """
@@ -260,12 +282,34 @@ class Board(Group):
                     game.is_knight_king_attacker = any([isinstance(atk, Knight) for atk in attackers])
                     game.king_attackers.add(*attackers)
 
+    def update_squares_between_king_and_attacker(self) -> None:
+        """
+        Updates squares between king and attacker
+        """
+        game.squares_between_king_and_attacker.empty()
+        if len(game.king_attackers) > 1:
+            return
+        attacker = game.king_attackers.sprites()[0]
+        king = None
+        for piece in self.pieces:
+            if not isinstance(piece, King):
+                continue
+            if piece.player == game.state.player:
+                continue
+            king = piece
+        squares = self.get_squares_between_king_and_attacker(king, attacker)
+        game.squares_between_king_and_attacker.add(*squares)
+
     def update_king_checkmate(self) -> None:
         """
         Updates checkmate flag according to current board state
         """
-        # TODO: Implement checkmate functionality
-        return False
+        #TODO: test it
+        for piece in self.pieces:
+            if piece.player.opponent() == game.state.player:
+                if len(piece.possible_moves) or len(piece.possible_captures):
+                    return False
+        return True
 
     def try_select_piece(self) -> bool:
         """

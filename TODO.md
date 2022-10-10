@@ -1,13 +1,19 @@
-# Check is not implemented
+# Check
 
 - [x] king can't enter the checked squares
 - [x] you can't kill a piece by king if the piece is defended
 - [x] If Knight checks then can only capture attacking Knight or move King
 - [x] If multiple attackers then only King can move
-- [ ] you can move any piece if your king is checked (partially)
+- [x] after check you can only move or capture to avoid check
 - [x] you can't move king to checked square (checked square is blocked by King) (rook, bishop, queen has 'x-ray' on king)
+- [ ] you can capture defended piece (defended piece is blocked by King) (rook, bishop, queen has 'x-ray' on king)
+- [ ] pinned piece can move
 
-# Promotion is not implemented
+# Checkmate
+
+- [ ] checkmate is not working (probably checking all pieces possible moves, should check only proper player)
+
+# Promotion
 
 - [ ] pawn can go to last line and can't promote
 

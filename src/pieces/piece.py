@@ -114,33 +114,35 @@ class Piece(Square):
         if len(game.king_attackers) > 1:
             self.possible_moves.empty()
             return
-
-        # If Knight checks then only King can move
-        if game.is_knight_king_attacker:
-            self.possible_moves.empty()
+        if self.player == game.state.player:
             return
 
-        # TODO: Implement more update moves after Check
+        # Only blocking moves are allowed
+        for possible_move in self.possible_moves:
+            if not isinstance(possible_move, Square):
+                continue
+            block_coords = [block_move.coord for block_move in game.squares_between_king_and_attacker]
+            if possible_move.coord not in block_coords:
+                self.possible_moves.remove(possible_move)
+
+
 
     def update_possible_captures_after_check(self) -> None:
         """
         Updates Piece possible captures after Check
         """
-        # If multiple attackers then only King can move
+        # If multiple attackers then capture is not allowed (King is handled by different function)
         if len(game.king_attackers) > 1:
             self.possible_captures.empty()
             return
 
-        # If Knight checks then can only capture Knight
-        if game.is_knight_king_attacker:
-            knight : Piece = game.king_attackers.sprites()[0]
-            for possible_capture in self.possible_captures:
-                if not isinstance(possible_capture, Square):
-                    continue
-                if possible_capture.coord != knight.coord:
-                    self.possible_captures.remove(possible_capture)
-
-        # TODO: Implement more update captures after Check
+        # Only the capture of the attacker Piece is allowed
+        attacker : Piece = game.king_attackers.sprites()[0]
+        for possible_capture in self.possible_captures:
+            if not isinstance(possible_capture, Square):
+                continue
+            if possible_capture.coord != attacker.coord:
+                self.possible_captures.remove(possible_capture)
 
     def get_image(self) -> Surface:
         """
