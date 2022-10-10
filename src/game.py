@@ -23,7 +23,7 @@ class Action(Enum):
 
 @dataclass
 class State:
-    player: Player = Player.WHITE
+    player: Player = Player.BLACK
     action: Action = Action.SELECT
     check: bool = False
     checkmate: bool = False
@@ -41,7 +41,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, Settings.FONT_SIZE)
         self.state = State()
-        self.turn_counter = 1
+        self.counter = -1
+        self.turn_counter = 0
         self.squares = AbstractGroup()
         self.pieces = AbstractGroup()
         self.king_attackers = AbstractGroup()
@@ -52,10 +53,12 @@ class Game:
         """
         Ends player turn
         """
-        self.turn_counter += 1
+        self.turn_counter += self.counter % 2
+        self.counter += 1
         if self.state.player == Player.WHITE:
             self.state.player = Player.BLACK
         else:
             self.state.player = Player.WHITE
+        print(f"{self.turn_counter}. {self.state.player} turn")
 
 game = Game()

@@ -20,56 +20,64 @@ class King(Piece):
         # Flags
         self.moved = False
 
-    def update_possible_moves(self) -> None:
+    def update_legal_moves(self) -> None:
         """
         Overrides super class implementation.
         King can't move to the defended square.
         """
-        self.possible_moves.empty()
-
         for direction in self.directions:
+            square: Square
             for square in self.move_square_generator(direction):
-                if self.player.opponent() in square.checked_by:
+                if self.player.opponent() in square.defended_by:
                     continue
+                piece: Piece
                 for piece in game.pieces:
-                    if not isinstance(piece, Piece):
-                        continue
                     if square.coord == piece.coord:
                         break
                 else:
-                    self.possible_moves.add(square)
-                    continue
-                break
+                    self.legal_moves.add(square)
 
-        # Remove X-Ray attacker vision
-        for attacker in game.king_attackers:
-            attacker : Piece
-            for direction in attacker.directions:
-                for square in attacker.move_square_generator(direction):
-                    if square in self.possible_moves:
-                        self.possible_moves.remove(square)
-
-    def update_possible_captures(self) -> None:
+    def update_captures(self) -> None:
         """
         Overrides super class implementation.
         King can't capture the defended piece.
         """
-        self.possible_captures.empty()
-
         for direction in self.directions:
+            square: Square
             for square in self.move_square_generator(direction):
-                if self.player.opponent() in square.checked_by:
+                if self.player.opponent() in square.defended_by:
                     continue
+                piece: Piece
                 for piece in game.pieces:
-                    if not isinstance(piece, Piece):
-                        continue
                     if square.coord == piece.coord:
-                        self.possible_captures.add(square)
+                        if self.player == piece.player.opponent():
+                            self.captures.add(square)
                         break
                 else:
-                    self.possible_captures.add(square)
+                    self.captures.add(square)
                     continue
                 break
+
+    def remove_xray_defended_squares(self) -> None:
+        """
+        Removes xray defended squares from legal moves and captures
+        """
+        for attacker in game.king_attackers:
+            attacker : Piece
+            for direction in attacker.directions:
+                for square in attacker.move_square_generator(direction):
+                    if square in self.legal_moves:
+                        self.legal_moves.remove(square)
+                    if square in self.captures:
+                        self.captures.remove(square)
+
+    def update_moves_after_check(self) -> None:
+        """
+        Updates King possible moves and captures after Check
+        """
+        self.update_legal_moves()
+        self.update_captures()
+        self.remove_xray_defended_squares()
 
     def move(self, square: Square) -> None:
         """

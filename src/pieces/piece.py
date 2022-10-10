@@ -10,8 +10,7 @@ import utils
 from board.coord import Coord
 from board.square import Square
 from game import *
-from pieces.captures import WhiteCaptures, BlackCaptures
-from pieces.moves import WhiteMoves, BlackMoves
+from pieces.moves import WhiteLegalMoves, BlackLegalMoves, WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
 from settings import Settings
 
 
@@ -27,15 +26,16 @@ class Piece(Square):
         super().__init__(coord, *groups)
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
-        self.possible_moves = WhiteMoves() if is_white else BlackMoves()
-        self.possible_captures = WhiteCaptures() if is_white else BlackCaptures()
+        self.legal_moves = WhiteLegalMoves() if is_white else BlackLegalMoves()
+        self.captures = WhiteCaptures() if is_white else BlackCaptures()
+        self.defended_squares = WhiteDefendedSquares() if is_white else BlackDefendedSquares()
         self.image = self.get_image()
         self.rect = self.get_rect()
 
     def setup(self) -> None:
-        self.possible_moves.owner = self
-        self.possible_captures.owner = self
-        self.update_possible_moves_and_captures()
+        self.legal_moves.owner = self
+        self.captures.owner = self
+        self.update_moves()
 
     def draw(self, surface: Surface) -> None:
         # Ensures that Square.draw is overridden
@@ -55,94 +55,116 @@ class Piece(Square):
                 if square.coord == (direction * Coord(i, i) + self.coord):
                     yield square
 
-    def update_possible_moves_and_captures(self) -> None:
+    def update_moves(self) -> None:
         """
-        Updates Piece possible moves and captures
+        Updates Piece moves:
+        - legal moves
+        - captures
+        - defended squares
         """
-        self.update_possible_moves()
-        self.update_possible_captures()
+        self.legal_moves.empty()
+        self.captures.empty()
+        self.defended_squares.empty()
+        self.update_legal_moves()
+        self.update_captures()
+        self.update_defended_squares()
 
-    def update_possible_moves(self) -> None:
-        """
-        Updates Piece possible moves according to move_square_generator
-        """
-        self.possible_moves.empty()
 
+    def update_legal_moves(self) -> None:
+        """
+        Updates Piece legal moves according to move_square_generator
+        """
         for direction in self.directions:
+            square: Square
             for square in self.move_square_generator(direction):
+                piece: Piece
                 for piece in game.pieces:
-                    if not isinstance(piece, Piece):
-                        continue
                     if square.coord == piece.coord:
                         break
                 else:
-                    self.possible_moves.add(square)
+                    self.legal_moves.add(square)
                     continue
                 break
 
-    def update_possible_captures(self) -> None:
+    def update_captures(self) -> None:
         """
         Updates Piece possible captures according to move_square_generator
         """
-        self.possible_captures.empty()
-
         for direction in self.directions:
+            square: Square
             for square in self.move_square_generator(direction):
+                piece: Piece
                 for piece in game.pieces:
-                    if not isinstance(piece, Piece):
-                        continue
                     if square.coord == piece.coord:
-                        self.possible_captures.add(square)
+                        if self.player == piece.player.opponent():
+                            self.captures.add(square)
                         break
                 else:
-                    self.possible_captures.add(square)
                     continue
                 break
 
-    def update_possible_moves_and_captures_after_check(self) -> None:
+    def update_defended_squares(self) -> None:
         """
-        Updates Piece possible moves and captures after Check
+        Updates Piece defended squares according to move_square_generator
         """
-        self.update_possible_moves_after_check()
-        self.update_possible_captures_after_check()
+        for direction in self.directions:
+            square: Square
+            for square in self.move_square_generator(direction):
+                piece: Piece
+                for piece in game.pieces:
+                    if square.coord == piece.coord:
+                        self.defended_squares.add(square)
+                        break
+                else:
+                    self.defended_squares.add(square)
+                    continue
+                break
 
-    def update_possible_moves_after_check(self) -> None:
+
+    def update_moves_after_check(self) -> None:
+        """
+        Updates Piece moves after Check:
+        - legal moves
+        - captures
+        """
+        self.update_legal_moves_after_check()
+        self.update_captures_after_check()
+
+    def update_legal_moves_after_check(self) -> None:
         """
         Updates Piece possible moves after Check
         """
         # If multiple attackers then only King can move
         if len(game.king_attackers) > 1:
-            self.possible_moves.empty()
+            self.legal_moves.empty()
             return
         if self.player == game.state.player:
             return
 
         # Only blocking moves are allowed
-        for possible_move in self.possible_moves:
-            if not isinstance(possible_move, Square):
+        for legal_move in self.legal_moves:
+            if not isinstance(legal_move, Square):
                 continue
             block_coords = [block_move.coord for block_move in game.squares_between_king_and_attacker]
-            if possible_move.coord not in block_coords:
-                self.possible_moves.remove(possible_move)
+            if legal_move.coord not in block_coords:
+                self.legal_moves.remove(legal_move)
 
-
-
-    def update_possible_captures_after_check(self) -> None:
+    def update_captures_after_check(self) -> None:
         """
         Updates Piece possible captures after Check
         """
         # If multiple attackers then capture is not allowed (King is handled by different function)
         if len(game.king_attackers) > 1:
-            self.possible_captures.empty()
+            self.captures.empty()
             return
 
         # Only the capture of the attacker Piece is allowed
         attacker : Piece = game.king_attackers.sprites()[0]
-        for possible_capture in self.possible_captures:
-            if not isinstance(possible_capture, Square):
+        for capture in self.captures:
+            if not isinstance(capture, Square):
                 continue
-            if possible_capture.coord != attacker.coord:
-                self.possible_captures.remove(possible_capture)
+            if capture.coord != attacker.coord:
+                self.captures.remove(capture)
 
     def get_image(self) -> Surface:
         """

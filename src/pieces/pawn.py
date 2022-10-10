@@ -41,15 +41,15 @@ class Pawn(Piece):
         self.move_range = 1
         if (self.coord + self.double_direction) == square.coord:
             self.double_moved = True
-            self.double_moved_turn = game.turn_counter
+            self.double_moved_turn = game.counter
         return super().move(square)
 
-    def update_possible_moves(self) -> None:
+    def update_legal_moves(self) -> None:
         """
         Extends super implementation by
         adding En Passant moves
         """
-        super().update_possible_moves()
+        super().update_legal_moves()
 
         # En Passant Moves
         for capture_move, en_passant_move in zip(self.capture_directions, self.en_passant_directions):
@@ -65,28 +65,34 @@ class Pawn(Piece):
                         and piece.double_moved
                         and piece.player != self.player):
                         self.can_en_passant = True
-                        self.can_en_passant_turn = game.turn_counter
+                        self.can_en_passant_turn = game.counter
                         self.en_passant_square = square
-                        self.possible_moves.add(square)
+                        self.legal_moves.add(square)
 
-    def update_possible_captures(self) -> None:
+    def update_captures(self) -> None:
         """
         Overrides super class implementation.
-        Updates possible captures according to Pawn capture_square_generator
+        Updates captures according to Pawn capture_square_generator
         """
-        self.possible_captures.empty()
-
         for square in self.capture_square_generator():
-            self.possible_captures.add(square)
+            self.captures.add(square)
+
+    def update_defended_squares(self) -> None:
+        """
+        Overrides super class implementation.
+        Updates defended squares according to Pawn capture_square_generator
+        """
+        for square in self.capture_square_generator():
+            self.defended_squares.add(square)
 
     def update_flags(self) -> None:
         """
         Extends super implementation by
         updating the Pawn flags
         """
-        if game.turn_counter - self.can_en_passant_turn > 1:
+        if game.counter - self.can_en_passant_turn > 1:
             self.can_en_passant = False
-        if game.turn_counter - self.double_moved_turn > 1:
+        if game.counter - self.double_moved_turn > 1:
             self.double_moved = False
         return super().update_flags()
 

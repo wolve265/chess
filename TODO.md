@@ -6,12 +6,12 @@
 - [x] If multiple attackers then only King can move
 - [x] after check you can only move or capture to avoid check
 - [x] you can't move king to checked square (checked square is blocked by King) (rook, bishop, queen has 'x-ray' on king)
-- [ ] you can capture defended piece (defended piece is blocked by King) (rook, bishop, queen has 'x-ray' on king)
+- [x] you can't capture defended piece (defended piece is blocked by King) (rook, bishop, queen has 'x-ray' on king)
 - [ ] pinned piece can move
 
 # Checkmate
 
-- [ ] checkmate is not working (probably checking all pieces possible moves, should check only proper player)
+- [x] checkmate is working (I guess xd)
 
 # Promotion
 

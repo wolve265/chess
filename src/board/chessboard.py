@@ -13,7 +13,7 @@ from board.coord import Coord
 from board.square import Square
 from events import *
 from game import *
-from pieces.captures import Captures, WhiteCaptures, BlackCaptures
+from pieces.moves import WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
 from pieces.generator import Generator
 from pieces.knight import Knight
 from pieces.piece import Piece
@@ -43,6 +43,7 @@ class Board(Group):
         game.squares.add(self.squares)
         self.setup_pieces()
         game.pieces.add(self.pieces)
+        game.end_player_turn()
 
     def setup_board(self) -> None:
         """
@@ -144,8 +145,6 @@ class Board(Group):
         attacker_square = self.get_square(attacker)
         coord = king_square.coord - attacker_square.coord
         direction = coord.get_direction()
-        # if game.state.player == Player.WHITE:
-        #     direction *= Coord(-1, 1)
         for square in attacker.move_square_generator(direction):
             if self.get_piece(square):
                 break
@@ -153,10 +152,6 @@ class Board(Group):
         return squares
 
     def actions(self, event: Event) -> None:
-        if self.update_king_checkmate():
-            gen_event(END_GAME)
-            return
-
         self.piece_pressed = None
         self.square_pressed = None
 
@@ -199,14 +194,15 @@ class Board(Group):
         """
         self.reset_squares()
         self.update_pieces_flags()
-        self.update_possible_moves_and_captures()
-        self.update_checked_squares()
+        self.update_possible_moves()
+        self.update_defended_squares()
         self.update_king_check()
         if game.state.check:
             self.update_squares_between_king_and_attacker()
-            self.update_possible_moves_and_captures_after_check()
+            self.update_possible_moves_after_check()
         self.update_kings_moves()
         if game.state.check:
+            self.update_kings_moves_after_check()
             self.update_king_checkmate()
 
     def reset_squares(self) -> None:
@@ -223,19 +219,19 @@ class Board(Group):
         for piece in self.pieces:
             piece.update_flags()
 
-    def update_possible_moves_and_captures(self) -> None:
+    def update_possible_moves(self) -> None:
         """
         Updates possible moves and captures of all Pieces
         """
         for piece in self.pieces:
-            piece.update_possible_moves_and_captures()
+            piece.update_moves()
 
-    def update_possible_moves_and_captures_after_check(self) -> None:
+    def update_possible_moves_after_check(self) -> None:
         """
         Updates possible moves and captures of all Pieces after Check
         """
         for piece in self.pieces:
-            piece.update_possible_moves_and_captures_after_check()
+            piece.update_moves_after_check()
 
     def update_kings_moves(self) -> None:
         """
@@ -244,21 +240,28 @@ class Board(Group):
         """
         for piece in self.pieces:
             if isinstance(piece, King):
-                piece.update_possible_moves_and_captures()
+                piece.update_moves()
 
-    def update_checked_squares(self) -> None:
+    def update_kings_moves_after_check(self) -> None:
         """
-        Updates checked flag of all Squares
+        Updates possible moves of King after check.
+        Used after update_checked_squares to remove checked squares from moves.
+        """
+        for piece in self.pieces:
+            if isinstance(piece, King):
+                piece.update_moves_after_check()
+
+    def update_defended_squares(self) -> None:
+        """
+        Updates defended_by flag of all Squares
         """
         for square in self.squares:
-            square.checked_by.clear()
+            square.defended_by.clear()
             for group in square.groups():
-                if not isinstance(group, Captures):
-                    continue
-                if isinstance(group, WhiteCaptures):
-                    square.checked_by.add(Player.WHITE)
-                elif isinstance(group, BlackCaptures):
-                    square.checked_by.add(Player.BLACK)
+                if isinstance(group, WhiteDefendedSquares):
+                    square.defended_by.add(Player.WHITE)
+                elif isinstance(group, BlackDefendedSquares):
+                    square.defended_by.add(Player.BLACK)
 
     def update_king_check(self) -> None:
         """
@@ -275,7 +278,7 @@ class Board(Group):
                     # Can't check own King
                     continue
                 king_square.king_checked = False
-                if game.state.player in king_square.checked_by:
+                if game.state.player in king_square.defended_by:
                     king_square.king_checked = True
                     game.state.check = True
                     attackers = self.get_attackers(king_square)
@@ -302,14 +305,16 @@ class Board(Group):
 
     def update_king_checkmate(self) -> None:
         """
-        Updates checkmate flag according to current board state
+        Genrates checkmate event according to current board state
         """
-        #TODO: test it
         for piece in self.pieces:
             if piece.player.opponent() == game.state.player:
-                if len(piece.possible_moves) or len(piece.possible_captures):
-                    return False
-        return True
+                print(piece, piece.legal_moves, piece.captures.sprites())
+                if len(piece.legal_moves) or len(piece.captures):
+                    return
+        input("Wanna exit game?")
+        gen_event(END_GAME)
+
 
     def try_select_piece(self) -> bool:
         """
@@ -330,11 +335,11 @@ class Board(Group):
 
         self.piece_selected = self.piece_pressed
         self.get_square(self.piece_selected).render_selection()
-        for square in self.piece_selected.possible_moves:
+        for square in self.piece_selected.legal_moves:
             if not isinstance(square, Square):
                 continue
             square.render_possible_move()
-        for square in self.piece_selected.possible_captures:
+        for square in self.piece_selected.captures:
             if not isinstance(square, Square):
                 continue
             if piece := self.get_piece(square):
@@ -354,7 +359,7 @@ class Board(Group):
             return False
 
         # Cannot move if square is not in possible moves
-        if not self.square_pressed in self.piece_selected.possible_moves:
+        if not self.square_pressed in self.piece_selected.legal_moves:
             return False
 
         for square in self.squares:
@@ -379,7 +384,7 @@ class Board(Group):
             return False
 
         # Cannot capture if square is not in possible captures
-        if not self.square_pressed in self.piece_selected.possible_captures:
+        if not self.square_pressed in self.piece_selected.captures:
             return False
 
         for square in self.squares:
@@ -426,6 +431,6 @@ class Board(Group):
         """
         game.pieces.remove(piece)
         self.pieces.remove(piece)
-        piece.possible_moves.empty()
-        piece.possible_captures.empty()
+        piece.legal_moves.empty()
+        piece.captures.empty()
         piece.kill()
