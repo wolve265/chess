@@ -15,10 +15,11 @@ from events import *
 from game import *
 from pieces.moves import WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
 from pieces.generator import Generator
-from pieces.knight import Knight
-from pieces.piece import Piece
-from pieces.pawn import Pawn
 from pieces.king import King
+from pieces.knight import Knight
+from pieces.pawn import Pawn
+from pieces.piece import Piece
+from pieces.rook import Rook
 from settings import Settings
 
 
@@ -86,6 +87,16 @@ class Board(Group):
                 return square
         return None
 
+    @dispatch(Coord)
+    def get_square(self, coord: Coord) -> Square | None:
+        """
+        Returns Square object from Coord
+        """
+        for square in self.squares:
+            if square.coord == coord:
+                return square
+        return None
+
     @dispatch(Piece)
     def get_square(self, piece: Piece) -> Square:
         """
@@ -102,6 +113,16 @@ class Board(Group):
         """
         for piece in self.pieces:
             if piece.full_rect.collidepoint(pos):
+                return piece
+        return None
+
+    @dispatch(Coord)
+    def get_piece(self, coord: Coord) -> Piece | None:
+        """
+        Returns Square object from Coord
+        """
+        for piece in self.pieces:
+            if piece.coord == coord:
                 return piece
         return None
 
@@ -320,7 +341,6 @@ class Board(Group):
                     return
         game.state.checkmate = True
 
-
     def try_select_piece(self) -> bool:
         """
         Tries to select a piece. If successful, returns True
@@ -369,6 +389,14 @@ class Board(Group):
 
         for square in self.squares:
             square.render_reset()
+
+        # Castling part
+        if isinstance(self.piece_selected, King):
+            move = self.square_pressed.coord - self.piece_selected.coord
+            if (move/move.get_direction()).col_i > King.move_range:
+                direction = move.get_direction()
+                self.castle(self.piece_selected, self.square_pressed, direction)
+                return True
 
         # Move a piece to an empty square
         self.move_piece(self.piece_selected, self.square_pressed)
@@ -429,6 +457,23 @@ class Board(Group):
         Moves a Piece to desired Square
         """
         piece.move(square)
+
+    def castle(self, king: Piece, king_square: Square, direction: Coord) -> None:
+        """
+        Castles
+        """
+        rook: Rook = None
+        rook_square: Square = None
+        for sprite in king.get_row():
+            if not isinstance(sprite, Rook):
+                continue
+            # Search right
+            if (direction == Coord(0, 1) and sprite.coord > king.coord or
+                direction == Coord(0, -1) and sprite.coord < king.coord):
+                rook = sprite
+                rook_square = self.get_square(king.coord + direction)
+        king.move(king_square)
+        rook.move(rook_square)
 
     def capture_piece(self, attacker: Piece, defender: Piece) -> None:
         """

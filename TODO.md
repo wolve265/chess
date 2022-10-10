@@ -9,9 +9,11 @@
 - [x] you can't capture defended piece (defended piece is blocked by King) (rook, bishop, queen has 'x-ray' on king)
 - [ ] pinned piece can move
 
-# Checkmate
+# Game End
 
 - [x] checkmate is working (I guess xd)
+- [ ] Stalemate (not implemented)
+- [ ] Threefold repetition (not implemented)
 
 # Promotion
 
@@ -22,7 +24,8 @@
 - [x] Square is marked as capture
 
 # Castling
-- [ ] King can't castle
+
+- [x] King can castle
 
 # Imports
 - [ ] Imports must be checked on venv and other paths

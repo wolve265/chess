@@ -1,9 +1,11 @@
-from pygame.sprite import AbstractGroup
+from pygame.sprite import AbstractGroup, Sprite
 
 from board.coord import Coord
+from board.row import Row
 from board.square import Square
 from game import *
 from pieces.piece import Piece
+from pieces.rook import Rook
 
 
 class King(Piece):
@@ -37,6 +39,51 @@ class King(Piece):
                     if square.coord == piece.coord:
                         break
                 else:
+                    self.legal_moves.add(square)
+        self.update_castling_moves()
+
+    def update_castling_moves(self) -> None:
+        """
+        Extending legal moves by castling moves
+        """
+        # Cannot castle if King is checked
+        if game.state.check:
+            return
+        # Cannot castle if King moved
+        if self.moved:
+            return
+        # Find Rooks in the King's row that the King can castle with
+        for rook in self.get_row():
+            if not isinstance(rook, Rook):
+                continue
+            # Cannot castle if Rook moved
+            if rook.moved:
+                continue
+            def get_sprites_between_rook_and_king(type: Sprite) -> list[Sprite]:
+                sprites_between: list[Sprite] = []
+                for sprite in self.get_row():
+                    if not isinstance(sprite, type):
+                        continue
+                    if (rook.coord < sprite.coord < self.coord or
+                        self.coord < sprite.coord < rook.coord):
+                        sprites_between.append(sprite)
+                return sprites_between
+            # Cannot castle if pieces between
+            if get_sprites_between_rook_and_king(Piece):
+                continue
+            squares_between: list[Square] = get_sprites_between_rook_and_king(Square)
+            defenders_of_squares_between: set[Player] = set()
+            for square in squares_between:
+                defenders_of_squares_between.update(square.defended_by)
+            # Cannot castle if squares between are defended by opponent
+            if self.player.opponent() in defenders_of_squares_between:
+                continue
+            coord = rook.coord - self.coord
+            square_coord = coord.get_direction() * Coord(1, 2) + self.coord
+            for square in game.squares:
+                if not isinstance(square, Square):
+                    continue
+                if square.coord == square_coord:
                     self.legal_moves.add(square)
 
     def update_captures(self) -> None:

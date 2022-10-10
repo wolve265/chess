@@ -7,7 +7,9 @@ from typing import *
 
 import utils
 
+from board.col import Col
 from board.coord import Coord
+from board.row import Row
 from board.square import Square
 from game import *
 from pieces.moves import WhiteLegalMoves, BlackLegalMoves, WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
@@ -201,6 +203,12 @@ class Piece(Square):
         """
         Moves the Piece to desired square
         """
+        row, col = self.get_row_col()
+        row.remove(self)
+        col.remove(self)
         self.coord = square.coord
         self.full_rect = self.get_full_rect()
         self.rect = self.get_rect()
+        row, col = square.get_row_col()
+        row.add(self)
+        col.add(self)

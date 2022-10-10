@@ -53,15 +53,18 @@ class Square(Sprite):
     def get_full_rect(self) -> Rect:
         return pygame.Rect((self.coord.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, (Settings.ROW_NUM-self.coord.row_i-1)*Settings.SQUARE_LEN + Settings.BORDER_LEN), Settings.SQUARE_SIZE)
 
-    def get_row_group(self) -> Row:
+    def get_row(self) -> Row:
         for group in self.groups():
             if isinstance(group, Row):
                 return group
 
-    def get_col_group(self) -> Col:
+    def get_col(self) -> Col:
         for group in self.groups():
             if isinstance(group, Col):
                 return group
+
+    def get_row_col(self) -> tuple[Row, Col]:
+        return self.get_row(), self.get_col()
 
     def render_selection(self) -> None:
         """

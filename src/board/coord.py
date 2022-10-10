@@ -18,13 +18,24 @@ class Coord:
         return Coord(self.row_i * other.row_i, self.col_i * other.col_i)
 
     def __floordiv__(self, other: 'Coord') -> 'Coord':
-        return Coord(self.row_i // other.row_i, self.col_i // other.col_i)
+        row_i=other.row_i if other.row_i else 1
+        col_i=other.col_i if other.col_i else 1
+        return Coord(self.row_i // row_i, self.col_i // col_i)
 
     def __truediv__(self, other: 'Coord') -> 'Coord':
         return self.__floordiv__(other)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: 'Coord') -> bool:
         return True if self.row_i == other.row_i and self.col_i == other.col_i else False
+
+    def __lt__(self, other: 'Coord') -> bool:
+        if self.row_i < other.row_i:
+            return True
+        if self.row_i > other.row_i:
+            return False
+        if self.col_i < other.col_i:
+            return True
+        return False
 
     def __abs__(self) -> 'Coord':
         return Coord(abs(self.row_i), abs(self.col_i))
@@ -46,8 +57,4 @@ class Coord:
         return utils.col_int2str(self.col_i)
 
     def get_direction(self) -> 'Coord':
-        abs_coord = abs(Coord(
-            row_i=self.row_i if self.row_i else 1,
-            col_i=self.col_i if self.col_i else 1
-        ))
-        return self / abs_coord
+        return self / abs(self)
