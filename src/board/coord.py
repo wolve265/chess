@@ -48,7 +48,7 @@ class Coord:
     def __repr__(self) -> str:
         row_str = self.get_row_str()
         col_str = self.get_col_str()
-        return f"Pos({self.row_i}, {self.col_i}) = ({col_str}{row_str})"
+        return f"Coord({self.row_i}, {self.col_i}) = ({col_str}{row_str})"
 
     def get_row_str(self) -> str:
         return utils.row_int2str(self.row_i)

@@ -44,13 +44,6 @@ class Pawn(Piece):
             self.double_moved_turn = game.counter
         return super().move(square)
 
-    def update_legal_moves(self) -> None:
-        """
-        Extends super implementation by
-        adding En Passant moves
-        """
-        super().update_legal_moves()
-
     def update_captures(self) -> None:
         """
         Overrides super class implementation.
@@ -61,6 +54,8 @@ class Pawn(Piece):
 
         # En Passant Captures
         for capture_move, en_passant_move in zip(self.capture_directions, self.en_passant_directions):
+            if self.pinned and capture_move != self.pinned_direction:
+                continue
             for square in game.squares:
                 if not isinstance(square, Square):
                     continue
@@ -101,6 +96,8 @@ class Pawn(Piece):
         Generator for Pawn captures
         """
         for capture_move in self.capture_directions:
+            if self.pinned and capture_move != self.pinned_direction:
+                continue
             for square in game.squares:
                 if not isinstance(square, Square):
                     continue

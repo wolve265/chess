@@ -11,25 +11,11 @@ class Moves(Group):
         return f"{self.owner} has {super().__repr__()}"
 
 
-class WhiteLegalMoves(Moves):
-    pass
+class WhiteLegalMoves(Moves): ...
+class BlackLegalMoves(Moves): ...
 
+class WhiteCaptures(Moves): ...
+class BlackCaptures(Moves): ...
 
-class BlackLegalMoves(Moves):
-    pass
-
-
-class WhiteCaptures(Moves):
-    pass
-
-
-class BlackCaptures(Moves):
-    pass
-
-
-class WhiteDefendedSquares(Moves):
-    pass
-
-
-class BlackDefendedSquares(Moves):
-    pass
+class WhiteDefendedSquares(Moves): ...
+class BlackDefendedSquares(Moves): ...

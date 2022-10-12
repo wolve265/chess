@@ -7,9 +7,7 @@ from typing import *
 
 import utils
 
-from board.col import Col
 from board.coord import Coord
-from board.row import Row
 from board.square import Square
 from game import *
 from pieces.moves import WhiteLegalMoves, BlackLegalMoves, WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
@@ -33,6 +31,10 @@ class Piece(Square):
         self.defended_squares = WhiteDefendedSquares() if is_white else BlackDefendedSquares()
         self.image = self.get_image()
         self.rect = self.get_rect()
+
+        # Flags
+        self.pinned_direction: Coord = None
+        self.pinned = False
 
     def setup(self) -> None:
         self.legal_moves.owner = self
@@ -76,6 +78,8 @@ class Piece(Square):
         Updates Piece legal moves according to move_square_generator
         """
         for direction in self.directions:
+            if self.pinned and direction != self.pinned_direction:
+                continue
             for square in self.move_square_generator(direction):
                 if not isinstance(square, Square):
                     continue
@@ -94,6 +98,8 @@ class Piece(Square):
         Updates Piece possible captures according to move_square_generator
         """
         for direction in self.directions:
+            if self.pinned and direction != self.pinned_direction:
+                continue
             for square in self.move_square_generator(direction):
                 if not isinstance(square, Square):
                     continue
@@ -197,7 +203,8 @@ class Piece(Square):
         """
         Updates the Piece flags
         """
-        pass
+        self.pinned_direction = None
+        self.pinned = False
 
     def move(self, square: Square) -> None:
         """

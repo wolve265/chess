@@ -7,7 +7,7 @@
 - [x] after check you can only move or capture to avoid check
 - [x] you can't move king to checked square (checked square is blocked by King) (rook, bishop, queen has 'x-ray' on king)
 - [x] you can't capture defended piece (defended piece is blocked by King) (rook, bishop, queen has 'x-ray' on king)
-- [ ] pinned piece can move
+- [x] you can't move pinned piece
 
 # Game End
 

@@ -19,6 +19,7 @@ from pieces.king import King
 from pieces.knight import Knight
 from pieces.pawn import Pawn
 from pieces.piece import Piece
+from pieces.queen import Queen
 from pieces.rook import Rook
 from settings import Settings
 
@@ -98,13 +99,14 @@ class Board(Group):
         return None
 
     @dispatch(Piece)
-    def get_square(self, piece: Piece) -> Square:
+    def get_square(self, piece: Piece) -> Square | None:
         """
         Returns Square object of the same position as piece
         """
         for square in self.squares:
-            if square.full_rect.colliderect(piece.full_rect):
+            if square.coord == piece.coord:
                 return square
+        return None
 
     @dispatch(tuple)
     def get_piece(self, pos: tuple[int]) -> Piece | None:
@@ -127,13 +129,14 @@ class Board(Group):
         return None
 
     @dispatch(Square)
-    def get_piece(self, square: Square) -> Piece:
+    def get_piece(self, square: Square) -> Piece | None:
         """
         Returns Piece object of the same position as square
         """
         for piece in self.pieces:
-            if piece.full_rect.colliderect(square.full_rect):
+            if piece.coord == square.coord:
                 return piece
+        return None
 
     def get_defender_piece_en_passant(self, square: Square) -> Piece:
         """
@@ -222,6 +225,7 @@ class Board(Group):
         """
         self.reset_squares()
         self.update_pieces_flags()
+        self.update_pinned_pieces()
         self.update_possible_moves()
         self.update_defended_squares()
         self.update_king_check()
@@ -290,6 +294,32 @@ class Board(Group):
                     square.defended_by.add(Player.WHITE)
                 elif isinstance(group, BlackDefendedSquares):
                     square.defended_by.add(Player.BLACK)
+
+    def update_pinned_pieces(self) -> None:
+        """
+        Updates pinned flag of all Pieces
+        """
+        for piece in self.pieces:
+            if piece.move_range < 8:
+                continue
+            for direction in piece.directions:
+                piece1: Piece = None
+                piece2: Piece = None
+                for square in piece.move_square_generator(direction):
+                    piece_target = self.get_piece(square)
+                    if not piece_target:
+                        continue
+                    # Can't pin own Pieces
+                    if piece.player == piece_target.player:
+                        break
+                    if piece1 is None:
+                        piece1 = piece_target
+                    else:
+                        piece2 = piece_target
+                        break
+                if isinstance(piece2, King):
+                    piece1.pinned_direction = direction * Coord(-1, -1)
+                    piece1.pinned = True
 
     def update_king_check(self) -> None:
         """
