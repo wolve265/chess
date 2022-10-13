@@ -12,7 +12,7 @@
 # Game End
 
 - [x] checkmate is working (I guess xd)
-- [ ] Stalemate (not implemented)
+- [x] Stalemate is working
 - [ ] Threefold repetition (not implemented)
 
 # Promotion

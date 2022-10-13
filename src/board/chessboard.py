@@ -206,7 +206,7 @@ class Board(Group):
             # End turn
             self.set_next_action(Action.SELECT)
             self.perform_end_turn_calculations()
-            if game.state.checkmate:
+            if game.state.checkmate or game.state.stalemate:
                 gen_event(END_GAME)
             else:
                 game.end_player_turn()
@@ -233,6 +233,8 @@ class Board(Group):
             self.update_squares_between_king_and_attacker()
             self.update_possible_moves_after_check()
         self.update_kings_moves()
+        if not game.state.check:
+            self.update_king_stalemate()
         if game.state.check:
             self.update_kings_moves_after_check()
             self.update_king_checkmate()
@@ -363,13 +365,25 @@ class Board(Group):
 
     def update_king_checkmate(self) -> None:
         """
-        Genrates checkmate event according to current board state
+        Sets checkmate flag according to current board state
+        """
+        game.state.checkmate = not self.opponent_has_legal_moves()
+
+    def update_king_stalemate(self) -> None:
+        """
+        Sets stalemate flag according to current board state
+        """
+        game.state.stalemate = not self.opponent_has_legal_moves()
+
+    def opponent_has_legal_moves(self) -> bool:
+        """
+        Returns True if opponent has legal moves. Otherwise returns False
         """
         for piece in self.pieces:
             if piece.player.opponent() == game.state.player:
                 if len(piece.legal_moves) or len(piece.captures):
-                    return
-        game.state.checkmate = True
+                    return True
+        return False
 
     def try_select_piece(self) -> bool:
         """

@@ -27,6 +27,7 @@ class State:
     action: Action = Action.SELECT
     check: bool = False
     checkmate: bool = False
+    stalemate: bool = False
 
 
 class Game:
