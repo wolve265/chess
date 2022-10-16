@@ -25,6 +25,9 @@ class Action(Enum):
 class State:
     player: Player = Player.BLACK
     action: Action = Action.SELECT
+    short_castle: bool = False
+    long_castle: bool = False
+    capture: bool = False
     check: bool = False
     checkmate: bool = False
     stalemate: bool = False
@@ -50,16 +53,24 @@ class Game:
         self.squares_between_king_and_attacker = AbstractGroup()
         self.is_knight_king_attacker = False
 
-    def end_player_turn(self) -> None:
+    def setup(self) -> None:
+        """
+        Sets up game
+        """
+        self.state.player = Player.WHITE
+        self.counter = 0
+        self.turn_counter = 1
+        print(f"{self.turn_counter}.", end=" ")
+
+    def end_player_turn(self, move_notation: str = "") -> None:
         """
         Ends player turn
         """
-        self.turn_counter += self.counter % 2
+        print(f"{move_notation}", end=" ")
+        if self.counter % 2:
+            self.turn_counter += self.counter % 2
+            print(f"\n{self.turn_counter}.", end=" ")
         self.counter += 1
-        if self.state.player == Player.WHITE:
-            self.state.player = Player.BLACK
-        else:
-            self.state.player = Player.WHITE
-        print(f"{self.turn_counter}. {self.state.player} turn")
+        self.state.player = self.state.player.opponent()
 
 game = Game()

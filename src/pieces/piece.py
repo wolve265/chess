@@ -24,6 +24,7 @@ class Piece(Square):
 
     def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(coord, *groups)
+        self.id = self.__class__.__name__[0]
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK
         self.legal_moves = WhiteLegalMoves() if is_white else BlackLegalMoves()
@@ -47,6 +48,12 @@ class Piece(Square):
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         return super().update(*args, **kwargs)
+
+    def kill(self) -> None:
+        self.legal_moves.empty()
+        self.captures.empty()
+        self.defended_squares.empty()
+        return super().kill()
 
     def move_square_generator(self, direction: Coord) -> Square:
         """

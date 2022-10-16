@@ -22,6 +22,7 @@ from pieces.piece import Piece
 from pieces.queen import Queen
 from pieces.rook import Rook
 from settings import Settings
+from transcript import GameMove
 
 
 class Board(Group):
@@ -35,8 +36,11 @@ class Board(Group):
         self.rows: List[Row] = []
         self.cols: List[Col] = []
         self.square_pressed: Square = None
+        self.square_selected: Square = None
         self.piece_pressed: Piece = None
         self.piece_selected: Piece = None
+        self.current_game_move: GameMove = None
+        self.transcript: list[GameMove] = []
         self.setup()
         super().__init__(self.squares, self.pieces, *sprites)
 
@@ -51,7 +55,7 @@ class Board(Group):
         for piece in self.pieces:
             piece.setup()
 
-        game.end_player_turn()
+        game.setup()
 
     def setup_board(self) -> None:
         """
@@ -186,6 +190,9 @@ class Board(Group):
 
         # Actions "State Machine"
         if game.state.action == Action.SELECT:
+            game.state.capture = False
+            game.state.short_castle = False
+            game.state.long_castle = False
             # Select a piece
             if self.try_select_piece():
                 self.set_next_action(Action.MOVE)
@@ -209,7 +216,8 @@ class Board(Group):
             if game.state.checkmate or game.state.stalemate:
                 gen_event(END_GAME)
             else:
-                game.end_player_turn()
+                self.transcript.append(self.current_game_move)
+                game.end_player_turn(self.current_game_move.notation)
 
     def set_next_action(self, action: Action) -> None:
         """
@@ -434,23 +442,24 @@ class Board(Group):
         for square in self.squares:
             square.render_reset()
 
+        self.square_selected = self.square_pressed
         # Castling part
         if isinstance(self.piece_selected, King):
             move = self.square_pressed.coord - self.piece_selected.coord
             if (move/move.get_direction()).col_i > King.move_range:
                 direction = move.get_direction()
-                self.castle(self.piece_selected, self.square_pressed, direction)
+                self.castle(self.piece_selected, self.square_selected, direction)
                 return True
 
         # Move a piece to an empty square
-        self.move_piece(self.piece_selected, self.square_pressed)
+        self.move_piece(self.piece_selected, self.square_selected)
         return True
 
     def try_capture_piece(self) -> bool:
         """
         Tries to capture a piece. If successful, returns True
         """
-        # Cannot capture if no piece is pressed
+        # Cannot capture if no piece is pressed unless it's en passant
         if self.piece_pressed is None:
             return self.try_capture_en_passant()
 
@@ -461,6 +470,7 @@ class Board(Group):
         for square in self.squares:
             square.render_reset()
 
+        self.square_selected = self.square_pressed
         self.capture_piece(self.piece_selected, self.piece_pressed)
         return True
 
@@ -481,7 +491,8 @@ class Board(Group):
                 if not isinstance(pawn_capture, Square):
                     continue
                 if pawn_capture.coord == self.square_pressed.coord:
-                    self.en_passant(self.piece_selected, self.square_pressed)
+                    self.square_selected = self.square_pressed
+                    self.en_passant(self.piece_selected, self.square_selected)
                     return True
         return False
 
@@ -500,29 +511,36 @@ class Board(Group):
         """
         Moves a Piece to desired Square
         """
+        self.current_game_move = GameMove(piece, square, game.state)
         piece.move(square)
 
-    def castle(self, king: Piece, king_square: Square, direction: Coord) -> None:
+    def castle(self, king: Piece, king_dst_square: Square, direction: Coord) -> None:
         """
         Castles
         """
         rook: Rook = None
-        rook_square: Square = None
+        rook_dst_square: Square = None
         for sprite in king.get_row():
             if not isinstance(sprite, Rook):
                 continue
-            # Search right
             if (direction == Coord(0, 1) and sprite.coord > king.coord or
                 direction == Coord(0, -1) and sprite.coord < king.coord):
                 rook = sprite
-                rook_square = self.get_square(king.coord + direction)
-        king.move(king_square)
-        rook.move(rook_square)
+                rook_dst_square = self.get_square(king.coord + direction)
+        if abs((king.coord - rook.coord).col_i) > 3:
+            game.state.long_castle = True
+        else:
+            game.state.short_castle = True
+        self.current_game_move = GameMove(king, king_dst_square, game.state)
+        king.move(king_dst_square)
+        rook.move(rook_dst_square)
 
     def capture_piece(self, attacker: Piece, defender: Piece) -> None:
         """
         Attacker Piece captures the defender Piece
         """
+        game.state.capture = True
+        self.current_game_move = GameMove(attacker, self.get_square(defender), game.state)
         attacker.move(defender)
         self.remove_piece(defender)
 
@@ -530,6 +548,8 @@ class Board(Group):
         """
         Performs an en passant
         """
+        game.state.capture = True
+        self.current_game_move = GameMove(attacker, square, game.state)
         defender = self.get_defender_piece_en_passant(square)
         attacker.move(square)
         self.remove_piece(defender)
@@ -540,7 +560,4 @@ class Board(Group):
         """
         game.pieces.remove(piece)
         self.pieces.remove(piece)
-        piece.legal_moves.empty()
-        piece.captures.empty()
-        piece.defended_squares.empty()
         piece.kill()

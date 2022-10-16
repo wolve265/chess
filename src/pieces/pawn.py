@@ -19,6 +19,7 @@ class Pawn(Piece):
 
     def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(coord, is_white, *groups)
+        self.id = ""
         self.directions = self.directions[is_white]
         self.capture_directions = self.capture_directions[is_white]
         self.double_direction = self.double_direction[is_white]

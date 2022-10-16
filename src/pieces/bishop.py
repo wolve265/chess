@@ -1,6 +1,5 @@
 from board.coord import Coord
 from pieces.piece import Piece
-from settings import Settings
 
 
 class Bishop(Piece):
