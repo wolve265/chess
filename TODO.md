@@ -17,7 +17,7 @@
 
 # Promotion
 
-- [ ] pawn can go to last line and can't promote
+- [x] Promotion is implemented
 
 # En Passant
 

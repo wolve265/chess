@@ -12,6 +12,8 @@ class Pawn(Piece):
     """
 
     move_range = 2
+    start_rows = {0 : 7, 1: 0}
+    promotion_rows = {0 : 0, 1: 7}
     directions = {0 : {Coord(-1, 0)}, 1 : {Coord(1, 0)}}
     capture_directions = {0 : {Coord(-1, -1), Coord(-1, 1)}, 1 : {Coord(1, -1), Coord(1, 1)}}
     en_passant_directions = {0 : {Coord(0, -1), Coord(0, 1)}, 1 : {Coord(0, -1), Coord(0, 1)}}
@@ -20,6 +22,8 @@ class Pawn(Piece):
     def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(coord, is_white, *groups)
         self.id = ""
+        self.start_row = self.start_rows[is_white]
+        self.promotion_row = self.promotion_rows[is_white]
         self.directions = self.directions[is_white]
         self.capture_directions = self.capture_directions[is_white]
         self.double_direction = self.double_direction[is_white]

@@ -9,11 +9,13 @@ from utils import *
 class GameMove:
     piece: Piece = field()
     destination: Square = field()
-    state: State = field()
-    promotion_piece: Piece = field(init=False)
+    promotion_piece: Piece = field(default=None)
     notation: str = field(init=False)
 
     def __post_init__(self) -> None:
+        self.update_notation()
+
+    def update_notation(self) -> None:
         ambiguous_row, ambiguous_col = self.is_ambiguous()
         if any([ambiguous_row, ambiguous_col]):
             self.notation = self.long_algebraic_notation(ambiguous_row, ambiguous_col)
@@ -29,7 +31,7 @@ class GameMove:
                 continue
             if piece.player != self.piece.player:
                 continue
-            if self.state.capture:
+            if game.state.capture:
                 if not self.destination in piece.captures:
                     continue
             else:
@@ -42,14 +44,14 @@ class GameMove:
         return ambiguous_row, ambiguous_col
 
     def algebraic_notation(self, src_coord: str = "") -> str:
-        if self.state.long_castle:
+        if game.state.long_castle:
             return "O-O-O"
-        if self.state.short_castle:
+        if game.state.short_castle:
             return "O-O"
-        capture_sign = "x" if self.state.capture else ""
-        check_sign = "+" if self.state.check else ""
-        checkmate_sign = "#" if self.state.checkmate else ""
-        promotion_sign = self.promotion_piece.id if hasattr(self, "promotion_piece") else ""
+        capture_sign = "x" if game.state.capture else ""
+        check_sign = "+" if game.state.check else ""
+        checkmate_sign = "#" if game.state.checkmate else ""
+        promotion_sign = self.promotion_piece.id if self.promotion_piece is not None else ""
         return f"{self.piece.id}{src_coord}{capture_sign}{self.destination.coord}{check_sign}{checkmate_sign}{promotion_sign}"
 
     def long_algebraic_notation(self, ambiguous_row: bool, ambiguous_col: bool) -> str:

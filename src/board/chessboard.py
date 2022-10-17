@@ -13,6 +13,7 @@ from board.coord import Coord
 from board.square import Square
 from events import *
 from game import *
+from pieces.bishop import Bishop
 from pieces.moves import WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
 from pieces.generator import Generator
 from pieces.king import King
@@ -190,9 +191,7 @@ class Board(Group):
 
         # Actions "State Machine"
         if game.state.action == Action.SELECT:
-            game.state.capture = False
-            game.state.short_castle = False
-            game.state.long_castle = False
+            game.update_at_start_turn()
             # Select a piece
             if self.try_select_piece():
                 self.set_next_action(Action.MOVE)
@@ -237,6 +236,7 @@ class Board(Group):
         self.update_possible_moves()
         self.update_defended_squares()
         self.update_king_check()
+        self.current_game_move.update_notation()
         if game.state.check:
             self.update_squares_between_king_and_attacker()
             self.update_possible_moves_after_check()
@@ -443,12 +443,18 @@ class Board(Group):
             square.render_reset()
 
         self.square_selected = self.square_pressed
-        # Castling part
+        # Castling
         if isinstance(self.piece_selected, King):
             move = self.square_pressed.coord - self.piece_selected.coord
             if (move/move.get_direction()).col_i > King.move_range:
                 direction = move.get_direction()
                 self.castle(self.piece_selected, self.square_selected, direction)
+                return True
+
+        # Pawn promotion
+        if isinstance(self.piece_selected, Pawn):
+            if self.square_selected.get_row().row_i == self.piece_selected.promotion_row:
+                self.promote_move(self.piece_selected, self.square_selected)
                 return True
 
         # Move a piece to an empty square
@@ -471,6 +477,13 @@ class Board(Group):
             square.render_reset()
 
         self.square_selected = self.square_pressed
+
+        # Pawn promotion
+        if isinstance(self.piece_selected, Pawn):
+            if self.square_selected.get_row().row_i == self.piece_selected.promotion_row:
+                self.promote_capture(self.piece_selected, self.piece_pressed)
+                return True
+
         self.capture_piece(self.piece_selected, self.piece_pressed)
         return True
 
@@ -511,7 +524,7 @@ class Board(Group):
         """
         Moves a Piece to desired Square
         """
-        self.current_game_move = GameMove(piece, square, game.state)
+        self.current_game_move = GameMove(piece, square)
         piece.move(square)
 
     def castle(self, king: Piece, king_dst_square: Square, direction: Coord) -> None:
@@ -531,27 +544,64 @@ class Board(Group):
             game.state.long_castle = True
         else:
             game.state.short_castle = True
-        self.current_game_move = GameMove(king, king_dst_square, game.state)
+        self.current_game_move = GameMove(king, king_dst_square)
         king.move(king_dst_square)
         rook.move(rook_dst_square)
+
+    def get_user_promotion_type(self) -> Type[Piece]:
+        possible_promotion = {
+            "Q": Queen,
+            "R": Rook,
+            "B": Bishop,
+            "N": Knight
+        }
+        while (user_input := input()) not in possible_promotion.keys(): ...
+        return possible_promotion[user_input]
+
+    def promote_move(self, pawn: Pawn, square: Square) -> None:
+        """
+        Promotes Pawn by move
+        """
+        promotion_piece_type = self.get_user_promotion_type()
+        promotion_piece = promotion_piece_type(pawn.coord, pawn.player.value, *pawn.groups())
+        promotion_piece.setup()
+        game.pieces.add(promotion_piece)
+        self.pieces.append(promotion_piece)
+        self.current_game_move = GameMove(pawn, square, promotion_piece)
+        self.remove_piece(pawn)
+        promotion_piece.move(square)
 
     def capture_piece(self, attacker: Piece, defender: Piece) -> None:
         """
         Attacker Piece captures the defender Piece
         """
         game.state.capture = True
-        self.current_game_move = GameMove(attacker, self.get_square(defender), game.state)
+        self.current_game_move = GameMove(attacker, self.get_square(defender))
         attacker.move(defender)
         self.remove_piece(defender)
 
     def en_passant(self, attacker: Piece, square: Square) -> None:
         """
-        Performs an en passant
+        Performs an En Passant
         """
         game.state.capture = True
-        self.current_game_move = GameMove(attacker, square, game.state)
+        self.current_game_move = GameMove(attacker, square)
         defender = self.get_defender_piece_en_passant(square)
         attacker.move(square)
+        self.remove_piece(defender)
+
+    def promote_capture(self, pawn: Pawn, defender: Piece) -> None:
+        """
+        Promotes Pawn by capture
+        """
+        promotion_piece_type = self.get_user_promotion_type()
+        promotion_piece = promotion_piece_type(pawn.coord, pawn.player.value, *pawn.groups())
+        promotion_piece.setup()
+        game.pieces.add(promotion_piece)
+        self.pieces.append(promotion_piece)
+        self.current_game_move = GameMove(pawn, self.get_square(defender), promotion_piece)
+        self.remove_piece(pawn)
+        promotion_piece.move(defender)
         self.remove_piece(defender)
 
     def remove_piece(self, piece: Piece) -> None:

@@ -60,16 +60,21 @@ class Game:
         self.state.player = Player.WHITE
         self.counter = 0
         self.turn_counter = 1
-        print(f"{self.turn_counter}.", end=" ")
+        print(f"{self.turn_counter:>3}.", end=" ")
+
+    def update_at_start_turn(self) -> None:
+        game.state.capture = False
+        game.state.short_castle = False
+        game.state.long_castle = False
 
     def end_player_turn(self, move_notation: str = "") -> None:
         """
         Ends player turn
         """
-        print(f"{move_notation}", end=" ")
+        print(f"{move_notation:5}", end=" ")
         if self.counter % 2:
             self.turn_counter += self.counter % 2
-            print(f"\n{self.turn_counter}.", end=" ")
+            print(f"\n{self.turn_counter:>3}.", end=" ")
         self.counter += 1
         self.state.player = self.state.player.opponent()
 
