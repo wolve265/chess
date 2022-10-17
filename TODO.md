@@ -22,10 +22,21 @@
 # En Passant
 
 - [x] Square is marked as capture
+- [ ] Can capture after one turn
 
 # Castling
 
 - [x] King can castle
+- [ ] Cannot castle even if not check (long castle)
 
 # Imports
+
 - [ ] Imports must be checked on venv and other paths
+
+# Hubert suggestions
+
+- [ ] Checkbox for showing possible moves
+- [ ] Color last move
+- [ ] Rotating board
+- [ ] Counting material
+- [ ] Print after every move
