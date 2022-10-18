@@ -1,6 +1,6 @@
 # Wrong logic
 
-- [ ] Cannot castle even if not check (long castle)
+- ...
 
 
 # Upgrades

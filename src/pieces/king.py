@@ -32,7 +32,7 @@ class King(Piece):
                 if not isinstance(square, Square):
                     continue
                 if self.player.opponent() in square.defended_by:
-                    continue
+                    break
                 for piece in game.pieces:
                     if not isinstance(piece, Piece):
                         continue
@@ -59,32 +59,29 @@ class King(Piece):
             # Cannot castle if Rook moved
             if rook.moved:
                 continue
-            def get_sprites_between_rook_and_king(type: Sprite) -> list[Sprite]:
-                sprites_between: list[Sprite] = []
-                for sprite in self.get_row():
-                    if not isinstance(sprite, type):
-                        continue
-                    if (rook.coord < sprite.coord < self.coord or
-                        self.coord < sprite.coord < rook.coord):
-                        sprites_between.append(sprite)
-                return sprites_between
-            # Cannot castle if pieces between
-            if get_sprites_between_rook_and_king(Piece):
-                continue
-            squares_between: list[Square] = get_sprites_between_rook_and_king(Square)
-            defenders_of_squares_between: set[Player] = set()
-            for square in squares_between:
-                defenders_of_squares_between.update(square.defended_by)
-            # Cannot castle if squares between are defended by opponent
-            if self.player.opponent() in defenders_of_squares_between:
-                continue
-            coord = rook.coord - self.coord
-            square_coord = coord.get_direction() * Coord(1, 2) + self.coord
-            for square in game.squares:
+            vector = rook.coord - self.coord
+            move_range = abs(vector.col_i) - 1 # one square before Rook
+            direction = vector.get_direction()
+            king_dst_coord = direction * Coord(1, 2) + self.coord
+            dst_square: Square = None
+            piece_found = False
+            for i, square in enumerate(self.move_square_generator(direction, move_range), 1):
                 if not isinstance(square, Square):
                     continue
-                if square.coord == square_coord:
-                    self.legal_moves.add(square)
+                if i != move_range and self.player.opponent() in square.defended_by:
+                    break
+                for piece in game.pieces:
+                    if not isinstance(piece, Piece):
+                        continue
+                    if square.coord == piece.coord:
+                        piece_found = True
+                        break
+                if piece_found:
+                    break
+                if square.coord == king_dst_coord:
+                    dst_square = square
+            if dst_square and not piece_found:
+                self.legal_moves.add(dst_square)
 
     def update_captures(self) -> None:
         """

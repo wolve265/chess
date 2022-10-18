@@ -55,11 +55,12 @@ class Piece(Square):
         self.defended_squares.empty()
         return super().kill()
 
-    def move_square_generator(self, direction: Coord) -> Square:
+    def move_square_generator(self, direction: Coord, move_range: int = None) -> Square:
         """
         Generator for Piece moves in specified direction
         """
-        for i in range(1, self.move_range + 1):
+        move_range = move_range if move_range is not None else self.move_range
+        for i in range(1, move_range + 1):
             for square in game.squares:
                 if not isinstance(square, Square):
                     continue
