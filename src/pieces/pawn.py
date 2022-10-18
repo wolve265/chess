@@ -71,7 +71,7 @@ class Pawn(Piece):
                         continue
                     if ((self.coord + en_passant_move) == piece.coord
                         and piece.double_moved
-                        and piece.player != self.player):
+                        and piece.player == self.player.opponent()):
                         self.can_en_passant = True
                         self.can_en_passant_turn = game.counter
                         self.en_passant_square = square
@@ -90,11 +90,11 @@ class Pawn(Piece):
         Extends super implementation by
         updating the Pawn flags
         """
-        if game.counter - self.can_en_passant_turn > 1:
+        super().update_flags()
+        if game.counter - self.can_en_passant_turn > 0:
             self.can_en_passant = False
-        if game.counter - self.double_moved_turn > 1:
+        if game.counter - self.double_moved_turn > 0:
             self.double_moved = False
-        return super().update_flags()
 
     def capture_square_generator(self) -> Square:
         """
