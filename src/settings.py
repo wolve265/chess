@@ -1,5 +1,3 @@
-import os
-
 from dataclasses import dataclass
 from pygame.color import Color
 
@@ -31,9 +29,9 @@ class Settings:
     WINDOW_LEN: int = BOARD_LEN + 2*BORDER_LEN
     FONT_SIZE:  int = 30
 
-    BOARD_SIZE:  tuple[int] = (BOARD_LEN, BOARD_LEN)
-    SQUARE_SIZE: tuple[int] = (SQUARE_LEN, SQUARE_LEN)
-    WINDOW_SIZE: tuple[int] = (WINDOW_LEN, WINDOW_LEN)
+    BOARD_SIZE:  tuple[int, int] = (BOARD_LEN, BOARD_LEN)
+    SQUARE_SIZE: tuple[int, int] = (SQUARE_LEN, SQUARE_LEN)
+    WINDOW_SIZE: tuple[int, int] = (WINDOW_LEN, WINDOW_LEN)
 
     #Colors
     BACKGROUND_COLOR   = Color(92, 104, 81)

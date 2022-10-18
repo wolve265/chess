@@ -1,5 +1,3 @@
-from typing import *
-
 from board.col import Col
 from board.row import Row
 from board.coord import Coord
@@ -18,12 +16,12 @@ class Generator:
     Class used for generating chess pieces
     """
 
-    def __init__(self, rows: List[Row], cols: List[Col]) -> None:
+    def __init__(self, rows: list[Row], cols: list[Col]) -> None:
         self.rows = rows
         self.cols = cols
 
-    def run(self) -> List[Piece]:
-        pieces: List[Piece] = []
+    def run(self) -> list[Piece]:
+        pieces: list[Piece] = []
 
         # Pawns
         for row_i, is_white in zip((1,6), (True, False)):

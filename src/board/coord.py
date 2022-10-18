@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import utils
 
 
-@dataclass(unsafe_hash=True)
+@dataclass(frozen=True)
 class Coord:
     row_i: int
     col_i: int
@@ -25,9 +25,6 @@ class Coord:
     def __truediv__(self, other: 'Coord') -> 'Coord':
         return self.__floordiv__(other)
 
-    def __eq__(self, other: 'Coord') -> bool:
-        return True if self.row_i == other.row_i and self.col_i == other.col_i else False
-
     def __lt__(self, other: 'Coord') -> bool:
         if self.row_i < other.row_i:
             return True
@@ -36,6 +33,9 @@ class Coord:
         if self.col_i < other.col_i:
             return True
         return False
+
+    def __gt__(self, other: 'Coord') -> bool:
+        return not self.__lt__(other)
 
     def __abs__(self) -> 'Coord':
         return Coord(abs(self.row_i), abs(self.col_i))

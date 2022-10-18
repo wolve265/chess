@@ -1,9 +1,9 @@
 import pygame
 
-from pygame import Rect
+from pygame.rect import Rect
 from pygame.sprite import AbstractGroup
 from pygame.surface import Surface
-from typing import *
+from typing import Any, Iterator
 
 import utils
 
@@ -34,12 +34,12 @@ class Piece(Square):
         self.rect = self.get_rect()
 
         # Flags
-        self.pinned_direction: Coord = None
+        self.pinned_direction: Coord | None = None
         self.pinned = False
 
     def setup(self) -> None:
-        self.legal_moves.owner = self
-        self.captures.owner = self
+        self.legal_moves.owner.add(self)
+        self.captures.owner.add(self)
         self.update_moves()
 
     def draw(self, surface: Surface) -> None:
@@ -55,7 +55,7 @@ class Piece(Square):
         self.defended_squares.empty()
         return super().kill()
 
-    def move_square_generator(self, direction: Coord, move_range: int = None) -> Square:
+    def move_square_generator(self, direction: Coord, move_range: int | None = None) -> Iterator[Square]:
         """
         Generator for Piece moves in specified direction
         """
@@ -89,8 +89,6 @@ class Piece(Square):
             if self.pinned and direction != self.pinned_direction:
                 continue
             for square in self.move_square_generator(direction):
-                if not isinstance(square, Square):
-                    continue
                 for piece in game.pieces:
                     if not isinstance(piece, Piece):
                         continue
@@ -109,8 +107,6 @@ class Piece(Square):
             if self.pinned and direction != self.pinned_direction:
                 continue
             for square in self.move_square_generator(direction):
-                if not isinstance(square, Square):
-                    continue
                 for piece in game.pieces:
                     if not isinstance(piece, Piece):
                         continue
@@ -128,8 +124,6 @@ class Piece(Square):
         """
         for direction in self.directions:
             for square in self.move_square_generator(direction):
-                if not isinstance(square, Square):
-                    continue
                 for piece in game.pieces:
                     if not isinstance(piece, Piece):
                         continue
@@ -165,7 +159,11 @@ class Piece(Square):
         for legal_move in self.legal_moves:
             if not isinstance(legal_move, Square):
                 continue
-            block_coords = [block_move.coord for block_move in game.squares_between_king_and_attacker]
+            block_coords: list[Coord] = []
+            for block_move in game.squares_between_king_and_attacker:
+                if not isinstance(block_move, Square):
+                    continue
+                block_coords.append(block_move.coord)
             if legal_move.coord not in block_coords:
                 self.legal_moves.remove(legal_move)
 
@@ -174,12 +172,12 @@ class Piece(Square):
         Updates Piece possible captures after Check
         """
         # If multiple attackers then capture is not allowed (King is handled by different function)
-        if len(game.king_attackers) > 1:
+        king_attackers: list[Piece] = [sprite for sprite in game.king_attackers if isinstance(sprite, Piece)]
+        if len(king_attackers) > 1:
             self.captures.empty()
             return
-
         # Only the capture of the attacker Piece is allowed
-        attacker : Piece = game.king_attackers.sprites()[0]
+        attacker = king_attackers[0]
         for capture in self.captures:
             if not isinstance(capture, Square):
                 continue

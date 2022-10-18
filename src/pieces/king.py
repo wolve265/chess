@@ -1,7 +1,6 @@
-from pygame.sprite import AbstractGroup, Sprite
+from pygame.sprite import AbstractGroup
 
 from board.coord import Coord
-from board.row import Row
 from board.square import Square
 from game import *
 from pieces.piece import Piece
@@ -29,8 +28,6 @@ class King(Piece):
         """
         for direction in self.directions:
             for square in self.move_square_generator(direction):
-                if not isinstance(square, Square):
-                    continue
                 if self.player.opponent() in square.defended_by:
                     break
                 for piece in game.pieces:
@@ -63,11 +60,9 @@ class King(Piece):
             move_range = abs(vector.col_i) - 1 # one square before Rook
             direction = vector.get_direction()
             king_dst_coord = direction * Coord(1, 2) + self.coord
-            dst_square: Square = None
+            dst_square: Square | None = None
             piece_found = False
             for i, square in enumerate(self.move_square_generator(direction, move_range), 1):
-                if not isinstance(square, Square):
-                    continue
                 if i != move_range and self.player.opponent() in square.defended_by:
                     break
                 for piece in game.pieces:
@@ -90,8 +85,6 @@ class King(Piece):
         """
         for direction in self.directions:
             for square in self.move_square_generator(direction):
-                if not isinstance(square, Square):
-                    continue
                 if self.player.opponent() in square.defended_by:
                     continue
                 for piece in game.pieces:

@@ -4,7 +4,7 @@ from pygame import Rect
 from pygame.color import Color
 from pygame.sprite import AbstractGroup, Sprite
 from pygame.surface import Surface
-from typing import *
+from typing import Any
 
 import utils
 
@@ -31,7 +31,7 @@ class Square(Sprite):
         self.full_rect = self.get_full_rect()
         self.image = game.font.render(f"", True, Settings.BLACK_COLOR)
         self.rect = self.image.get_rect(center=self.full_rect.center)
-        self.defended_by = set()
+        self.defended_by: set[Player] = set()
 
         # Flags reset after turn
         self.king_checked = False
@@ -57,11 +57,13 @@ class Square(Sprite):
         for group in self.groups():
             if isinstance(group, Row):
                 return group
+        raise Exception("IMPOSSIBLE! Row not found for Square object!")
 
     def get_col(self) -> Col:
         for group in self.groups():
             if isinstance(group, Col):
                 return group
+        raise Exception("IMPOSSIBLE! Column not found for Square object!")
 
     def get_row_col(self) -> tuple[Row, Col]:
         return self.get_row(), self.get_col()

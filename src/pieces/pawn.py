@@ -1,4 +1,5 @@
 from pygame.sprite import AbstractGroup
+from typing import Iterator, Optional
 
 from board.coord import Coord
 from board.square import Square
@@ -12,23 +13,23 @@ class Pawn(Piece):
     """
 
     move_range = 2
-    start_rows = {0 : 7, 1: 0}
-    promotion_rows = {0 : 0, 1: 7}
-    directions = {0 : {Coord(-1, 0)}, 1 : {Coord(1, 0)}}
-    capture_directions = {0 : {Coord(-1, -1), Coord(-1, 1)}, 1 : {Coord(1, -1), Coord(1, 1)}}
-    en_passant_directions = {0 : {Coord(0, -1), Coord(0, 1)}, 1 : {Coord(0, -1), Coord(0, 1)}}
-    double_direction = {0 : Coord(-2, 0), 1 : Coord(2, 0)}
+    start_rows = {False : 7, True: 0}
+    promotion_rows = {False : 0, True: 7}
+    pawn_directions_dict = {False : {Coord(-1, 0)}, True : {Coord(1, 0)}}
+    capture_directions_dict = {False : {Coord(-1, -1), Coord(-1, 1)}, True : {Coord(1, -1), Coord(1, 1)}}
+    en_passant_directions_dict = {False : {Coord(0, -1), Coord(0, 1)}, True : {Coord(0, -1), Coord(0, 1)}}
+    double_direction_dict = {False : Coord(-2, 0), True : Coord(2, 0)}
 
     def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(coord, is_white, *groups)
         self.id = ""
         self.start_row = self.start_rows[is_white]
         self.promotion_row = self.promotion_rows[is_white]
-        self.directions = self.directions[is_white]
-        self.capture_directions = self.capture_directions[is_white]
-        self.double_direction = self.double_direction[is_white]
-        self.en_passant_directions = self.en_passant_directions[is_white]
-        self.en_passant_square: Square = None
+        self.directions = self.pawn_directions_dict[is_white]
+        self.capture_directions = self.capture_directions_dict[is_white]
+        self.double_direction = self.double_direction_dict[is_white]
+        self.en_passant_directions = self.en_passant_directions_dict[is_white]
+        self.en_passant_square: Optional[Square] = None
 
         # Flags
         self.double_moved   = False
@@ -96,7 +97,7 @@ class Pawn(Piece):
         if game.counter - self.double_moved_turn > 0:
             self.double_moved = False
 
-    def capture_square_generator(self) -> Square:
+    def capture_square_generator(self) -> Iterator[Square]:
         """
         Generator for Pawn captures
         """

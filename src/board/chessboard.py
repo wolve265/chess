@@ -1,11 +1,10 @@
 import pygame
 
-from multipledispatch import dispatch
 from pygame.event import Event
 from pygame.rect import Rect
 from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
-from typing import *
+from typing import Optional, Sequence, Type, Union
 
 from board.col import Col
 from board.row import Row
@@ -32,15 +31,15 @@ class Board(Group):
     """
 
     def __init__(self, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
-        self.squares: List[Square] = []
-        self.pieces: List[Piece] = []
-        self.rows: List[Row] = []
-        self.cols: List[Col] = []
-        self.square_pressed: Square = None
-        self.square_selected: Square = None
-        self.piece_pressed: Piece = None
-        self.piece_selected: Piece = None
-        self.current_game_move: GameMove = None
+        self.squares: list[Square] = []
+        self.pieces: list[Piece] = []
+        self.rows: list[Row] = []
+        self.cols: list[Col] = []
+        self.square_pressed: Optional[Square] = None
+        self.square_selected: Optional[Square] = None
+        self.piece_pressed: Optional[Piece] = None
+        self.piece_selected: Optional[Piece] = None
+        self.current_game_move: Optional[GameMove] = None
         self.transcript: list[GameMove] = []
         self.setup()
         super().__init__(self.squares, self.pieces, *sprites)
@@ -74,7 +73,7 @@ class Board(Group):
         pieces_gen = Generator(self.rows, self.cols)
         self.pieces = pieces_gen.run()
 
-    def draw(self, surface: Surface) -> List[Rect]:
+    def draw(self, surface: Surface) -> list[Rect]:
         game.screen.fill(Settings.BACKGROUND_COLOR)
         for square in self.squares:
             square.draw(surface)
@@ -83,64 +82,37 @@ class Board(Group):
             col.draw(surface)
         return super().draw(surface)
 
-    @dispatch(tuple)
-    def get_square(self, pos: tuple[int]) -> Square | None:
+    def get_square(self, obj: tuple[int, int] | Coord | Piece) -> Square | None:
         """
-        Returns Square object from pos
-        """
-        for square in self.squares:
-            if square.full_rect.collidepoint(pos):
-                return square
-        return None
-
-    @dispatch(Coord)
-    def get_square(self, coord: Coord) -> Square | None:
-        """
-        Returns Square object from Coord
+        Returns Square object from pos or coord or piece
         """
         for square in self.squares:
-            if square.coord == coord:
-                return square
+            if isinstance(obj, tuple):
+                if square.full_rect.collidepoint(obj):
+                    return square
+            elif isinstance(obj, Coord):
+                if square.coord == obj:
+                    return square
+            else:
+                if square.coord == obj.coord:
+                    return square
         return None
 
-    @dispatch(Piece)
-    def get_square(self, piece: Piece) -> Square | None:
-        """
-        Returns Square object of the same position as piece
-        """
-        for square in self.squares:
-            if square.coord == piece.coord:
-                return square
-        return None
 
-    @dispatch(tuple)
-    def get_piece(self, pos: tuple[int]) -> Piece | None:
+    def get_piece(self, obj: tuple[int, int] | Coord | Square) -> Piece | None:
         """
         Returns Piece object from pos
         """
         for piece in self.pieces:
-            if piece.full_rect.collidepoint(pos):
-                return piece
-        return None
-
-    @dispatch(Coord)
-    def get_piece(self, coord: Coord) -> Piece | None:
-        """
-        Returns Square object from Coord
-        """
-        for piece in self.pieces:
-            if piece.coord == coord:
-                return piece
-        return None
-
-    @dispatch(Square)
-    def get_piece(self, square: Square) -> Piece | None:
-        """
-        Returns Piece object of the same position as square
-        """
-        for piece in self.pieces:
-            if piece.coord == square.coord:
-                return piece
+            if isinstance(obj, tuple):
+                if piece.full_rect.collidepoint(obj):
+                    return piece
+            elif isinstance(obj, Coord):
+                if piece.coord == obj:
+                    return piece
+            else:
+                if piece.coord == obj.coord:
+                    return piece
         return None
 
     def get_defender_piece_en_passant(self, square: Square) -> Piece:
@@ -148,27 +120,32 @@ class Board(Group):
         Returns defender Piece object during en passant
         """
         for square_temp in self.squares:
-            for move in Pawn.directions[game.state.player.value]:
+            for move in Pawn.pawn_directions_dict[game.state.player.value]:
                 if (square_temp.coord + move) == square.coord:
-                    return self.get_piece(square_temp)
+                    piece = self.get_piece(square_temp)
+                    if piece:
+                        return piece
+        raise Exception("Impossible! Cannot find defender piece in en passant")
 
     def get_attackers(self, square: Square) -> list[Piece]:
         """
         Returns attackers (list of Pieces) of specified square
         """
-        attackers = []
+        attackers: list[Piece] = []
         capture_group_type = WhiteCaptures if game.state.player == Player.WHITE else BlackCaptures
         for capture_group in square.groups():
             if not isinstance(capture_group, capture_group_type):
                 continue
-            attackers.append(capture_group.owner)
+            if not isinstance(capture_group.owner.sprite, Piece):
+                continue
+            attackers.append(capture_group.owner.sprite)
         return attackers
 
     def get_squares_between_king_and_attacker(self, king: King, attacker: Piece) -> list[Square]:
         """
         Returns squares between king and attacker
         """
-        squares = []
+        squares: list[Square] = []
         # Can't block Knight attack
         if isinstance(attacker, Knight):
             return squares
@@ -215,7 +192,8 @@ class Board(Group):
             if game.state.checkmate or game.state.stalemate:
                 gen_event(END_GAME)
             else:
-                self.transcript.append(self.current_game_move)
+                if self.current_game_move:
+                    self.transcript.append(self.current_game_move)
                 game.end_player_turn(self.current_game_move.notation)
 
     def set_next_action(self, action: Action) -> None:
@@ -313,8 +291,8 @@ class Board(Group):
             if piece.move_range < 8:
                 continue
             for direction in piece.directions:
-                piece1: Piece = None
-                piece2: Piece = None
+                piece1: Optional[Piece] = None
+                piece2: Optional[Piece] = None
                 for square in piece.move_square_generator(direction):
                     piece_target = self.get_piece(square)
                     if not piece_target:
@@ -342,6 +320,8 @@ class Board(Group):
             if isinstance(piece, King):
                 king = piece
                 king_square = self.get_square(king)
+                if not king_square:
+                    raise Exception("Impossible! Cannot find Square of King object")
                 if king.player == game.state.player:
                     # Can't check own King
                     continue
@@ -358,16 +338,19 @@ class Board(Group):
         Updates squares between king and attacker
         """
         game.squares_between_king_and_attacker.empty()
-        if len(game.king_attackers) > 1:
+        king_attackers: list[Piece] = [sprite for sprite in game.king_attackers if isinstance(sprite, Piece)]
+        if len(king_attackers) > 1:
             return
-        attacker = game.king_attackers.sprites()[0]
-        king = None
+        attacker = king_attackers[0]
+        king: Optional[King] = None
         for piece in self.pieces:
             if not isinstance(piece, King):
                 continue
             if piece.player == game.state.player:
                 continue
             king = piece
+        if not king:
+            return
         squares = self.get_squares_between_king_and_attacker(king, attacker)
         game.squares_between_king_and_attacker.add(*squares)
 
@@ -431,6 +414,10 @@ class Board(Group):
         """
         Tries to move a piece. If successful, returns True
         """
+        # Cannot move if no piece is selected
+        if self.piece_selected is None:
+            return False
+
         # Cannot move if no square is pressed
         if self.square_pressed is None:
             return False
@@ -465,6 +452,14 @@ class Board(Group):
         """
         Tries to capture a piece. If successful, returns True
         """
+        # Cannot capture if no piece is selected
+        if self.piece_selected is None:
+            return False
+
+        # Cannot capture if no square is pressed
+        if self.square_pressed is None:
+            return False
+
         # Cannot capture if no piece is pressed unless it's en passant
         if self.piece_pressed is None:
             return self.try_capture_en_passant()
@@ -519,6 +514,7 @@ class Board(Group):
             for square in self.squares:
                 square.render_reset()
             return True
+        return False
 
     def move_piece(self, piece: Piece, square: Square) -> None:
         """
@@ -531,8 +527,8 @@ class Board(Group):
         """
         Castles
         """
-        rook: Rook = None
-        rook_dst_square: Square = None
+        rook: Optional[Rook] = None
+        rook_dst_square: Optional[Square] = None
         for sprite in king.get_row():
             if not isinstance(sprite, Rook):
                 continue
@@ -544,6 +540,8 @@ class Board(Group):
             game.state.long_castle = True
         else:
             game.state.short_castle = True
+        if not rook_dst_square:
+            raise Exception("Impossible! Cannot find rook destination square during castling")
         self.current_game_move = GameMove(king, king_dst_square)
         king.move(king_dst_square)
         rook.move(rook_dst_square)
@@ -577,7 +575,10 @@ class Board(Group):
         Attacker Piece captures the defender Piece
         """
         game.state.capture = True
-        self.current_game_move = GameMove(attacker, self.get_square(defender))
+        defender_square = self.get_square(defender)
+        if not defender_square:
+            raise Exception("Impossible! Cannot find Square of Piece object")
+        self.current_game_move = GameMove(attacker, defender_square)
         attacker.move(defender)
         self.remove_piece(defender)
 
@@ -600,7 +601,10 @@ class Board(Group):
         promotion_piece.setup()
         game.pieces.add(promotion_piece)
         self.pieces.append(promotion_piece)
-        self.current_game_move = GameMove(pawn, self.get_square(defender), promotion_piece)
+        defender_square = self.get_square(defender)
+        if not defender_square:
+            raise Exception("Impossible! Cannot find Square of Piece object")
+        self.current_game_move = GameMove(pawn, defender_square, promotion_piece)
         self.remove_piece(pawn)
         promotion_piece.move(defender)
         self.remove_piece(defender)
