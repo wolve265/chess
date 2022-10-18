@@ -3,15 +3,20 @@
 - [ ] Cannot castle even if not check (long castle)
 
 
-# Other
+# Upgrades
 
+- [ ] Welcome screen
+- [ ] End screen with score
+- [ ] Promotion panel
+- [ ] Settings panel
 - [ ] Imports must be checked on venv and other paths
 
 
 # Ideas
 
-- [ ] Threefold repetition (is it needed?)
 - [ ] Checkbox for showing possible moves
+- [ ] Undo move
+- [ ] Threefold repetition (is it needed?)
 - [ ] Coloring last move
 - [ ] Rotating board
 - [ ] Counting material
