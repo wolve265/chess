@@ -555,7 +555,8 @@ class Board(Group):
             "B": Bishop,
             "N": Knight
         }
-        while (user_input := input()) not in possible_promotion.keys(): ...
+        ids = possible_promotion.keys()
+        while (user_input := input(f"Choose from {[*ids]}")) not in ids: ...
         return possible_promotion[user_input]
 
     def promote_move(self, pawn: Pawn, square: Square) -> None:
