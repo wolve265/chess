@@ -33,6 +33,7 @@ class Chess:
             if event.type == pygame.QUIT:
                 self.running = False
             elif event.type == END_GAME:
+                input("Press any key to exit")
                 self.running = False
             else:
                 self.board.actions(event)
