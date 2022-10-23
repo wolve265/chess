@@ -60,7 +60,7 @@ class Pawn(Piece):
 
         # En Passant Captures
         for capture_move, en_passant_move in zip(self.capture_directions, self.en_passant_directions):
-            if self.pinned and capture_move != self.pinned_direction:
+            if self.pinned and capture_move not in self.pinned_directions:
                 continue
             for square in game.squares:
                 if not isinstance(square, Square):
@@ -102,7 +102,7 @@ class Pawn(Piece):
         Generator for Pawn captures
         """
         for capture_move in self.capture_directions:
-            if self.pinned and capture_move != self.pinned_direction:
+            if self.pinned and capture_move not in self.pinned_directions:
                 continue
             for square in game.squares:
                 if not isinstance(square, Square):

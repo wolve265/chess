@@ -34,7 +34,7 @@ class Piece(Square):
         self.rect = self.get_rect()
 
         # Flags
-        self.pinned_direction: Coord | None = None
+        self.pinned_directions: set[Coord] = set()
         self.pinned = False
 
     def setup(self) -> None:
@@ -86,7 +86,7 @@ class Piece(Square):
         Updates Piece legal moves according to move_square_generator
         """
         for direction in self.directions:
-            if self.pinned and direction != self.pinned_direction:
+            if self.pinned and direction not in self.pinned_directions:
                 continue
             for square in self.move_square_generator(direction):
                 for piece in game.pieces:
@@ -104,7 +104,7 @@ class Piece(Square):
         Updates Piece possible captures according to move_square_generator
         """
         for direction in self.directions:
-            if self.pinned and direction != self.pinned_direction:
+            if self.pinned and direction not in self.pinned_directions:
                 continue
             for square in self.move_square_generator(direction):
                 for piece in game.pieces:
@@ -209,7 +209,7 @@ class Piece(Square):
         """
         Updates the Piece flags
         """
-        self.pinned_direction = None
+        self.pinned_directions.clear()
         self.pinned = False
 
     def move(self, square: Square) -> None:

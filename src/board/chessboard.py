@@ -306,7 +306,8 @@ class Board(Group):
                         piece2 = piece_target
                         break
                 if isinstance(piece2, King):
-                    piece1.pinned_direction = direction * Coord(-1, -1)
+                    piece1.pinned_directions.add(direction)
+                    piece1.pinned_directions.add(direction * Coord(-1, -1))
                     piece1.pinned = True
 
     def update_king_check(self) -> None:
