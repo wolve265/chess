@@ -2,7 +2,7 @@ from pygame.sprite import AbstractGroup
 
 from board.coord import Coord
 from board.square import Square
-from game import *
+from game import game
 from pieces.piece import Piece
 from pieces.rook import Rook
 

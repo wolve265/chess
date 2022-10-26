@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -39,11 +39,11 @@ class Game:
     """
 
     def __init__(self) -> None:
-        pygame.init()
-        pygame.display.set_caption(Settings.WINDOW_CAPTION)
-        self.screen = pygame.display.set_mode(Settings.WINDOW_SIZE)
-        self.clock = pygame.time.Clock()
-        self.font = pygame.font.Font(None, Settings.FONT_SIZE)
+        pg.init()
+        pg.display.set_caption(Settings.WINDOW_CAPTION)
+        self.screen = pg.display.set_mode(Settings.WINDOW_SIZE)
+        self.clock = pg.time.Clock()
+        self.font = pg.font.Font(None, Settings.FONT_SIZE)
         self.state = State()
         self.counter = -1
         self.turn_counter = 0

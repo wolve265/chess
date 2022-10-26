@@ -5,7 +5,8 @@
 
 # Upgrades
 
-- [ ] Welcome screen
+- [x] Welcome screen
+- [x] End screen prototype
 - [ ] End screen with score
 - [ ] Promotion panel
 - [ ] Settings panel

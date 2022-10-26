@@ -1,10 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+import utils
+
 from board.square import Square
 from pieces.piece import Piece
-from game import *
-from utils import *
+from game import game
+
 
 @dataclass
 class GameMove:
@@ -56,7 +58,7 @@ class GameMove:
         return f"{self.piece.id}{src_coord}{capture_sign}{self.destination.coord}{check_sign}{checkmate_sign}{promotion_sign}"
 
     def long_algebraic_notation(self, ambiguous_row: bool, ambiguous_col: bool) -> str:
-        col = col_int2str(self.piece.coord.col_i) if ambiguous_row else ""
-        row = row_int2str(self.piece.coord.row_i) if ambiguous_col else ""
+        col = utils.col_int2str(self.piece.coord.col_i) if ambiguous_row else ""
+        row = utils.row_int2str(self.piece.coord.row_i) if ambiguous_col else ""
         src_coord = f"{col}{row}"
         return self.algebraic_notation(src_coord)

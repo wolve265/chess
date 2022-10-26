@@ -1,8 +1,10 @@
-import pygame
+import pygame as pg
 
 from board.chessboard import Board
-from events import *
-from game import *
+from events import START_GAME, END_GAME, END_APP
+from game import game
+from popup.endgame import EndGamePopupGroup
+from popup.startgame import StartGamePopupGroup
 from settings import Settings
 
 
@@ -14,33 +16,47 @@ class Chess:
     def __init__(self) -> None:
         self.running = False
         self.board = Board()
-        self.cnt = 0
+        self.start_popup = StartGamePopupGroup()
+        self.end_popup = EndGamePopupGroup()
+        self.groups = [
+            self.board,
+            self.start_popup,
+            self.end_popup,
+        ]
 
     def run(self) -> None:
         self.running = True
+        self.start_popup.active = True
         while self.running:
             self.actions()
             self.update()
-            pygame.display.update()
+            pg.display.update()
             game.clock.tick(Settings.FPS)
-        pygame.quit()
+        pg.quit()
 
     def actions(self) -> None:
         """
         Main game logic
         """
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
                 self.running = False
+            elif event.type == START_GAME:
+                self.start_popup.active = False
+                self.board.active = True
             elif event.type == END_GAME:
-                input("Press any key to exit")
+                self.board.active = False
+                self.end_popup.active = True
+            elif event.type == END_APP:
                 self.running = False
-            else:
-                self.board.actions(event)
+            # NOTE: Only active groups would work
+            for group in self.groups:
+                group.actions(event)
 
     def update(self) -> None:
         """
         Updates and draws every group
         """
-        self.board.update()
-        self.board.draw(game.screen)
+        for group in self.groups:
+            group.update()
+            group.draw(game.screen)

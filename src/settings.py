@@ -33,9 +33,15 @@ class Settings:
     SQUARE_SIZE: tuple[int, int] = (SQUARE_LEN, SQUARE_LEN)
     WINDOW_SIZE: tuple[int, int] = (WINDOW_LEN, WINDOW_LEN)
 
-    #Colors
+    # Colors
     BACKGROUND_COLOR   = Color(92, 104, 81)
     SQUARE_BLACK_COLOR = Color(125, 148, 93)
     SQUARE_WHITE_COLOR = Color(238, 238, 213)
     BLACK_COLOR        = Color(0, 0, 0)
     WHITE_COLOR        = Color(255, 255, 255)
+
+    # Popups
+    POPUP_FONT_SIZE:        int = 50
+    POPUP_TEXT_MARGIN:      int = 25
+    POPUP_SPACING:          int = 25
+    POPUP_BORDER_RADIUS:    int = 10

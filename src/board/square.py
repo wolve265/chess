@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 
 from pygame import Rect
 from pygame.color import Color
@@ -11,7 +11,7 @@ import utils
 from board.col import Col
 from board.row import Row
 from board.coord import Coord
-from game import *
+from game import game, Player
 from settings import Settings
 
 
@@ -40,7 +40,7 @@ class Square(Sprite):
         return f'\n{super().__repr__()} | coord = ({self.coord})'
 
     def draw(self, surface: Surface) -> None:
-        pygame.draw.rect(surface, self.color, self.full_rect)
+        pg.draw.rect(surface, self.color, self.full_rect)
 
     def update(self, *args: Any, **kwargs: Any) -> None:
         if self.king_checked:
@@ -51,7 +51,7 @@ class Square(Sprite):
         return Settings.SQUARE_WHITE_COLOR if (self.coord.row_i + self.coord.col_i) % 2 else Settings.SQUARE_BLACK_COLOR
 
     def get_full_rect(self) -> Rect:
-        return pygame.Rect((self.coord.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, (Settings.ROW_NUM-self.coord.row_i-1)*Settings.SQUARE_LEN + Settings.BORDER_LEN), Settings.SQUARE_SIZE)
+        return Rect((self.coord.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, (Settings.ROW_NUM-self.coord.row_i-1)*Settings.SQUARE_LEN + Settings.BORDER_LEN), Settings.SQUARE_SIZE)
 
     def get_row(self) -> Row:
         for group in self.groups():

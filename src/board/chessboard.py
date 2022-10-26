@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 
 from pygame.event import Event
 from pygame.rect import Rect
@@ -10,8 +10,9 @@ from board.col import Col
 from board.row import Row
 from board.coord import Coord
 from board.square import Square
-from events import *
-from game import *
+from events import NEXT_ACTION, END_GAME, gen_event
+from game import game
+from game import Action, Player
 from pieces.bishop import Bishop
 from pieces.moves import WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
 from pieces.generator import Generator
@@ -31,6 +32,7 @@ class Board(Group):
     """
 
     def __init__(self, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
+        self.active = False
         self.squares: list[Square] = []
         self.pieces: list[Piece] = []
         self.rows: list[Row] = []
@@ -158,11 +160,14 @@ class Board(Group):
         return squares
 
     def actions(self, event: Event) -> None:
+        if not self.active:
+            return
+
         self.piece_pressed = None
         self.square_pressed = None
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == pygame.BUTTON_LEFT:
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if event.button == pg.BUTTON_LEFT:
                 self.piece_pressed = self.get_piece(event.pos)
                 self.square_pressed = self.get_square(event.pos)
 

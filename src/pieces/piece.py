@@ -9,7 +9,7 @@ import utils
 
 from board.coord import Coord
 from board.square import Square
-from game import *
+from game import game, Player
 from pieces.moves import WhiteLegalMoves, BlackLegalMoves, WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
 from settings import Settings
 
