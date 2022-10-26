@@ -18,14 +18,23 @@ class Row(Group):
         super().__init__(*sprites)
         self.row_i = row_i
         self.row_str = utils.row_int2str(self.row_i)
-        self.full_rect_left = Rect((0, (Settings.ROW_NUM-self.row_i-1)*Settings.SQUARE_LEN + Settings.BORDER_LEN), (Settings.BORDER_LEN, Settings.SQUARE_LEN))
-        self.full_rect_right = Rect((Settings.BOARD_LEN + Settings.BORDER_LEN, (Settings.ROW_NUM-self.row_i-1)*Settings.SQUARE_LEN + Settings.BORDER_LEN), (Settings.BORDER_LEN, Settings.SQUARE_LEN))
+        self.full_rect_left = Rect(
+            (0, (Settings.ROW_NUM - self.row_i - 1) * Settings.SQUARE_LEN + Settings.BORDER_LEN),
+            (Settings.BORDER_LEN, Settings.SQUARE_LEN),
+        )
+        self.full_rect_right = Rect(
+            (
+                Settings.BOARD_LEN + Settings.BORDER_LEN,
+                (Settings.ROW_NUM - self.row_i - 1) * Settings.SQUARE_LEN + Settings.BORDER_LEN,
+            ),
+            (Settings.BORDER_LEN, Settings.SQUARE_LEN),
+        )
         self.image = game.font.render(f"{self.row_str}", True, Settings.SQUARE_WHITE_COLOR)
         self.rect_left = self.image.get_rect(center=self.full_rect_left.center)
         self.rect_right = self.image.get_rect(center=self.full_rect_right.center)
 
     def __repr__(self) -> str:
-        return f'{super().__repr__()} = {self.row_i}'
+        return f"{super().__repr__()} = {self.row_i}"
 
     def draw(self, surface: Surface) -> list[Rect]:
         surface.blit(self.image, self.rect_left)

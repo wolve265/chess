@@ -20,9 +20,9 @@ class Square(Sprite):
     Class representing the single square of the chessboard
     """
 
-    possible_move_image = utils.load_image(utils.join(Settings.IMG_DIR, 'possible_move.png'))
-    possible_capture_image = utils.load_image(utils.join(Settings.IMG_DIR, 'possible_capture.png'))
-    king_check_image = utils.load_image(utils.join(Settings.IMG_DIR, 'king_check.png'))
+    possible_move_image = utils.load_image(utils.join(Settings.IMG_DIR, "possible_move.png"))
+    possible_capture_image = utils.load_image(utils.join(Settings.IMG_DIR, "possible_capture.png"))
+    king_check_image = utils.load_image(utils.join(Settings.IMG_DIR, "king_check.png"))
 
     def __init__(self, coord: Coord, *groups: AbstractGroup) -> None:
         super().__init__(*groups)
@@ -37,7 +37,7 @@ class Square(Sprite):
         self.king_checked = False
 
     def __repr__(self) -> str:
-        return f'\n{super().__repr__()} | coord = ({self.coord})'
+        return f"\n{super().__repr__()} | coord = ({self.coord})"
 
     def draw(self, surface: Surface) -> None:
         pg.draw.rect(surface, self.color, self.full_rect)
@@ -48,10 +48,21 @@ class Square(Sprite):
         return super().update(*args, **kwargs)
 
     def get_color(self) -> Color:
-        return Settings.SQUARE_WHITE_COLOR if (self.coord.row_i + self.coord.col_i) % 2 else Settings.SQUARE_BLACK_COLOR
+        return (
+            Settings.SQUARE_WHITE_COLOR
+            if (self.coord.row_i + self.coord.col_i) % 2
+            else Settings.SQUARE_BLACK_COLOR
+        )
 
     def get_full_rect(self) -> Rect:
-        return Rect((self.coord.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, (Settings.ROW_NUM-self.coord.row_i-1)*Settings.SQUARE_LEN + Settings.BORDER_LEN), Settings.SQUARE_SIZE)
+        return Rect(
+            (
+                self.coord.col_i * Settings.SQUARE_LEN + Settings.BORDER_LEN,
+                (Settings.ROW_NUM - self.coord.row_i - 1) * Settings.SQUARE_LEN
+                + Settings.BORDER_LEN,
+            ),
+            Settings.SQUARE_SIZE,
+        )
 
     def get_row(self) -> Row:
         for group in self.groups():

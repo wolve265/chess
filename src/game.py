@@ -11,7 +11,7 @@ class Player(Enum):
     WHITE = 1
     BLACK = 0
 
-    def opponent(self) -> 'Player':
+    def opponent(self) -> "Player":
         return Player(not self.value)
 
 
@@ -77,5 +77,6 @@ class Game:
             print(f"\n{self.turn_counter:>3}.", end=" ")
         self.counter += 1
         self.state.player = self.state.player.opponent()
+
 
 game = Game()

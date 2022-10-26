@@ -16,7 +16,7 @@ get_display_rect = pg.display.get_surface().get_rect
 
 @dataclass
 class PopupButtonData:
-    fun: Any = lambda : None
+    fun: Any = lambda: None
     text: str = "Default Text"
     font_name: str | None = None
     font_size: int = Settings.POPUP_FONT_SIZE
@@ -63,7 +63,7 @@ class PopupButton(Sprite):
             surface,
             self.pbd.background_color,
             self.big_rect,
-            border_radius=Settings.POPUP_BORDER_RADIUS
+            border_radius=Settings.POPUP_BORDER_RADIUS,
         )
 
 
@@ -81,8 +81,7 @@ class PopupGroup(Group):
     def update_first_button_center(self) -> None:
         first_button = self.buttons[0]
         distance_to_margin = (
-            (len(self.buttons)-1) / 2 *
-            (first_button.big_rect.height + Settings.POPUP_SPACING)
+            (len(self.buttons) - 1) / 2 * (first_button.big_rect.height + Settings.POPUP_SPACING)
         )
         first_button.move(0, int(-distance_to_margin))
 

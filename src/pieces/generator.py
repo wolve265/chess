@@ -24,18 +24,26 @@ class Generator:
         pieces: list[Piece] = []
 
         # Pawns
-        for row_i, is_white in zip((1,6), (True, False)):
+        for row_i, is_white in zip((1, 6), (True, False)):
             for col_i in range(Settings.COL_NUM):
-                pieces.append(Pawn(Coord(row_i, col_i), is_white, self.rows[row_i], self.cols[col_i]))
+                pieces.append(
+                    Pawn(Coord(row_i, col_i), is_white, self.rows[row_i], self.cols[col_i])
+                )
 
         # Rooks, Knights, Bishops, Queens, Kings
-        for row_i, is_white in zip((0,7), (True, False)):
+        for row_i, is_white in zip((0, 7), (True, False)):
             for col_i in (0, 7):
-                pieces.append(Rook(Coord(row_i, col_i), is_white, self.rows[row_i], self.cols[col_i]))
+                pieces.append(
+                    Rook(Coord(row_i, col_i), is_white, self.rows[row_i], self.cols[col_i])
+                )
             for col_i in (1, 6):
-                pieces.append(Knight(Coord(row_i, col_i), is_white, self.rows[row_i], self.cols[col_i]))
+                pieces.append(
+                    Knight(Coord(row_i, col_i), is_white, self.rows[row_i], self.cols[col_i])
+                )
             for col_i in (2, 5):
-                pieces.append(Bishop(Coord(row_i, col_i), is_white, self.rows[row_i], self.cols[col_i]))
+                pieces.append(
+                    Bishop(Coord(row_i, col_i), is_white, self.rows[row_i], self.cols[col_i])
+                )
             col_i = 3
             pieces.append(Queen(Coord(row_i, col_i), is_white, self.rows[row_i], self.cols[col_i]))
             col_i = 4

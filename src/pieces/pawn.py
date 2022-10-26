@@ -13,12 +13,18 @@ class Pawn(Piece):
     """
 
     move_range = 2
-    start_rows = {False : 7, True: 0}
-    promotion_rows = {False : 0, True: 7}
-    pawn_directions_dict = {False : {Coord(-1, 0)}, True : {Coord(1, 0)}}
-    capture_directions_dict = {False : {Coord(-1, -1), Coord(-1, 1)}, True : {Coord(1, -1), Coord(1, 1)}}
-    en_passant_directions_dict = {False : {Coord(0, -1), Coord(0, 1)}, True : {Coord(0, -1), Coord(0, 1)}}
-    double_direction_dict = {False : Coord(-2, 0), True : Coord(2, 0)}
+    start_rows = {False: 7, True: 0}
+    promotion_rows = {False: 0, True: 7}
+    pawn_directions_dict = {False: {Coord(-1, 0)}, True: {Coord(1, 0)}}
+    capture_directions_dict = {
+        False: {Coord(-1, -1), Coord(-1, 1)},
+        True: {Coord(1, -1), Coord(1, 1)},
+    }
+    en_passant_directions_dict = {
+        False: {Coord(0, -1), Coord(0, 1)},
+        True: {Coord(0, -1), Coord(0, 1)},
+    }
+    double_direction_dict = {False: Coord(-2, 0), True: Coord(2, 0)}
 
     def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(coord, is_white, *groups)
@@ -32,11 +38,11 @@ class Pawn(Piece):
         self.en_passant_square: Optional[Square] = None
 
         # Flags
-        self.double_moved   = False
+        self.double_moved = False
         self.can_en_passant = False
 
         # Counters
-        self.double_moved_turn   = 0
+        self.double_moved_turn = 0
         self.can_en_passant_turn = 0
 
     def move(self, square: Square) -> None:
@@ -59,7 +65,9 @@ class Pawn(Piece):
             self.captures.add(square)
 
         # En Passant Captures
-        for capture_move, en_passant_move in zip(self.capture_directions, self.en_passant_directions):
+        for capture_move, en_passant_move in zip(
+            self.capture_directions, self.en_passant_directions
+        ):
             if self.pinned and capture_move not in self.pinned_directions:
                 continue
             for square in game.squares:
@@ -70,9 +78,11 @@ class Pawn(Piece):
                 for piece in game.pieces:
                     if not isinstance(piece, Pawn):
                         continue
-                    if ((self.coord + en_passant_move) == piece.coord
+                    if (
+                        (self.coord + en_passant_move) == piece.coord
                         and piece.double_moved
-                        and piece.player == self.player.opponent()):
+                        and piece.player == self.player.opponent()
+                    ):
                         self.can_en_passant = True
                         self.can_en_passant_turn = game.counter
                         self.en_passant_square = square

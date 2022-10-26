@@ -13,7 +13,16 @@ class King(Piece):
     """
 
     move_range = 1
-    directions = {Coord(1, 0), Coord(1, 1), Coord(0, 1), Coord(-1, 1), Coord(-1, 0), Coord(-1, -1), Coord(0, -1), Coord(1, -1)}
+    directions = {
+        Coord(1, 0),
+        Coord(1, 1),
+        Coord(0, 1),
+        Coord(-1, 1),
+        Coord(-1, 0),
+        Coord(-1, -1),
+        Coord(0, -1),
+        Coord(1, -1),
+    }
 
     def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(coord, is_white, *groups)
@@ -57,7 +66,7 @@ class King(Piece):
             if rook.moved:
                 continue
             vector = rook.coord - self.coord
-            move_range = abs(vector.col_i) - 1 # one square before Rook
+            move_range = abs(vector.col_i) - 1  # one square before Rook
             direction = vector.get_direction()
             king_dst_coord = direction * Coord(1, 2) + self.coord
             dst_square: Square | None = None

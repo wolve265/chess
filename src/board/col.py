@@ -18,14 +18,23 @@ class Col(Group):
         super().__init__(*sprites)
         self.col_i = col_i
         self.col_str = utils.col_int2str(self.col_i)
-        self.full_rect_top = Rect((self.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, 0), (Settings.SQUARE_LEN, Settings.BORDER_LEN))
-        self.full_rect_bottom = Rect((self.col_i*Settings.SQUARE_LEN + Settings.BORDER_LEN, Settings.BOARD_LEN + Settings.BORDER_LEN), (Settings.SQUARE_LEN, Settings.BORDER_LEN))
+        self.full_rect_top = Rect(
+            (self.col_i * Settings.SQUARE_LEN + Settings.BORDER_LEN, 0),
+            (Settings.SQUARE_LEN, Settings.BORDER_LEN),
+        )
+        self.full_rect_bottom = Rect(
+            (
+                self.col_i * Settings.SQUARE_LEN + Settings.BORDER_LEN,
+                Settings.BOARD_LEN + Settings.BORDER_LEN,
+            ),
+            (Settings.SQUARE_LEN, Settings.BORDER_LEN),
+        )
         self.image = game.font.render(f"{self.col_str}", True, Settings.SQUARE_WHITE_COLOR)
         self.rect_top = self.image.get_rect(center=self.full_rect_top.center)
         self.rect_bottom = self.image.get_rect(center=self.full_rect_bottom.center)
 
     def __repr__(self) -> str:
-        return f'{super().__repr__()} = {self.col_i}'
+        return f"{super().__repr__()} = {self.col_i}"
 
     def draw(self, surface: Surface) -> list[Rect]:
         surface.blit(self.image, self.rect_top)

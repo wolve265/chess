@@ -100,7 +100,6 @@ class Board(Group):
                     return square
         return None
 
-
     def get_piece(self, obj: tuple[int, int] | Coord | Square) -> Piece | None:
         """
         Returns Piece object from pos
@@ -336,7 +335,9 @@ class Board(Group):
                     king_square.king_checked = True
                     game.state.check = True
                     attackers = self.get_attackers(king_square)
-                    game.is_knight_king_attacker = any([isinstance(atk, Knight) for atk in attackers])
+                    game.is_knight_king_attacker = any(
+                        [isinstance(atk, Knight) for atk in attackers]
+                    )
                     game.king_attackers.add(*attackers)
 
     def update_squares_between_king_and_attacker(self) -> None:
@@ -344,7 +345,9 @@ class Board(Group):
         Updates squares between king and attacker
         """
         game.squares_between_king_and_attacker.empty()
-        king_attackers: list[Piece] = [sprite for sprite in game.king_attackers if isinstance(sprite, Piece)]
+        king_attackers: list[Piece] = [
+            sprite for sprite in game.king_attackers if isinstance(sprite, Piece)
+        ]
         if len(king_attackers) > 1:
             return
         attacker = king_attackers[0]
@@ -439,7 +442,7 @@ class Board(Group):
         # Castling
         if isinstance(self.piece_selected, King):
             move = self.square_pressed.coord - self.piece_selected.coord
-            if (move/move.get_direction()).col_i > King.move_range:
+            if (move / move.get_direction()).col_i > King.move_range:
                 direction = move.get_direction()
                 self.castle(self.piece_selected, self.square_selected, direction)
                 return True
@@ -514,8 +517,9 @@ class Board(Group):
         """
         Tries to deselect a piece. If successful, returns True
         """
-        if ((self.square_pressed and self.piece_pressed is None) or
-           (self.piece_pressed is not None and self.piece_pressed == self.piece_selected)):
+        if (self.square_pressed and self.piece_pressed is None) or (
+            self.piece_pressed is not None and self.piece_pressed == self.piece_selected
+        ):
             self.piece_selected = None
             for square in self.squares:
                 square.render_reset()
@@ -538,8 +542,12 @@ class Board(Group):
         for sprite in king.get_row():
             if not isinstance(sprite, Rook):
                 continue
-            if (direction == Coord(0, 1) and sprite.coord > king.coord or
-                direction == Coord(0, -1) and sprite.coord < king.coord):
+            if (
+                direction == Coord(0, 1)
+                and sprite.coord > king.coord
+                or direction == Coord(0, -1)
+                and sprite.coord < king.coord
+            ):
                 rook = sprite
                 rook_dst_square = self.get_square(king.coord + direction)
         if abs((king.coord - rook.coord).col_i) > 3:
@@ -553,14 +561,10 @@ class Board(Group):
         rook.move(rook_dst_square)
 
     def get_user_promotion_type(self) -> Type[Piece]:
-        possible_promotion = {
-            "Q": Queen,
-            "R": Rook,
-            "B": Bishop,
-            "N": Knight
-        }
+        possible_promotion = {"Q": Queen, "R": Rook, "B": Bishop, "N": Knight}
         ids = possible_promotion.keys()
-        while (user_input := input(f"Choose from {[*ids]}")) not in ids: ...
+        while (user_input := input(f"Choose from {[*ids]}")) not in ids:
+            ...
         return possible_promotion[user_input]
 
     def promote_move(self, pawn: Pawn, square: Square) -> None:

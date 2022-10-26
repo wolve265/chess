@@ -10,7 +10,14 @@ import utils
 from board.coord import Coord
 from board.square import Square
 from game import game, Player
-from pieces.moves import WhiteLegalMoves, BlackLegalMoves, WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
+from pieces.moves import (
+    WhiteLegalMoves,
+    BlackLegalMoves,
+    WhiteCaptures,
+    BlackCaptures,
+    WhiteDefendedSquares,
+    BlackDefendedSquares,
+)
 from settings import Settings
 
 
@@ -55,7 +62,9 @@ class Piece(Square):
         self.defended_squares.empty()
         return super().kill()
 
-    def move_square_generator(self, direction: Coord, move_range: int | None = None) -> Iterator[Square]:
+    def move_square_generator(
+        self, direction: Coord, move_range: int | None = None
+    ) -> Iterator[Square]:
         """
         Generator for Piece moves in specified direction
         """
@@ -172,7 +181,9 @@ class Piece(Square):
         Updates Piece possible captures after Check
         """
         # If multiple attackers then capture is not allowed (King is handled by different function)
-        king_attackers: list[Piece] = [sprite for sprite in game.king_attackers if isinstance(sprite, Piece)]
+        king_attackers: list[Piece] = [
+            sprite for sprite in game.king_attackers if isinstance(sprite, Piece)
+        ]
         if len(king_attackers) > 1:
             self.captures.empty()
             return
@@ -190,12 +201,12 @@ class Piece(Square):
         """
         # Loading image with both white and black piece
         name = self.__class__.__name__.lower()
-        image = utils.load_image(utils.join(Settings.PIECES_IMG_DIR, f'{name}.png'))
+        image = utils.load_image(utils.join(Settings.PIECES_IMG_DIR, f"{name}.png"))
 
         # Cropping the piece with appropriate color
         (width, height) = image.get_size()
-        offset = 0 if self.is_white else -height/2
-        cropped = pygame.Surface((width, height/2), pygame.SRCALPHA).convert_alpha()
+        offset = 0 if self.is_white else -height / 2
+        cropped = pygame.Surface((width, height / 2), pygame.SRCALPHA).convert_alpha()
         cropped.blit(image, (0, offset))
 
         # Scaling image to square size
