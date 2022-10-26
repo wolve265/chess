@@ -34,10 +34,10 @@ class GameMove:
             if piece.player != self.piece.player:
                 continue
             if game.state.capture:
-                if not self.destination in piece.captures:
+                if self.destination not in piece.captures:
                     continue
             else:
-                if not self.destination in piece.legal_moves:
+                if self.destination not in piece.legal_moves:
                     continue
             if piece.coord.col_i == self.piece.coord.col_i:
                 ambiguous_col |= True
@@ -54,7 +54,10 @@ class GameMove:
         check_sign = "+" if game.state.check else ""
         checkmate_sign = "#" if game.state.checkmate else ""
         promotion_sign = self.promotion_piece.id if self.promotion_piece is not None else ""
-        return f"{self.piece.id}{src_coord}{capture_sign}{self.destination.coord}{check_sign}{checkmate_sign}{promotion_sign}"
+        return (
+            f"{self.piece.id}{src_coord}{capture_sign}{self.destination.coord}"
+            f"{check_sign}{checkmate_sign}{promotion_sign}"
+        )
 
     def long_algebraic_notation(self, ambiguous_row: bool, ambiguous_col: bool) -> str:
         col = utils.col_int2str(self.piece.coord.col_i) if ambiguous_row else ""

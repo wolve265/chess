@@ -1,7 +1,7 @@
 import sys
 
 sys.path.insert(0, "src")
-from chess import Chess
+from chess import Chess  # noqa: E402
 
 
 if __name__ == "__main__":

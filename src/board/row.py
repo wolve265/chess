@@ -1,9 +1,7 @@
+from collections.abc import Sequence
 from pygame.rect import Rect
 from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
-from typing import Union
-
-from collections.abc import Sequence
 
 import utils
 

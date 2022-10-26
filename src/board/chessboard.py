@@ -432,7 +432,7 @@ class Board(Group):
             return False
 
         # Cannot move if square is not in legal moves
-        if not self.square_pressed in self.piece_selected.legal_moves:
+        if self.square_pressed not in self.piece_selected.legal_moves:
             return False
 
         for square in self.squares:
@@ -474,7 +474,7 @@ class Board(Group):
             return self.try_capture_en_passant()
 
         # Cannot capture if square is not in possible captures
-        if not self.square_pressed in self.piece_selected.captures:
+        if self.square_pressed not in self.piece_selected.captures:
             return False
 
         for square in self.squares:

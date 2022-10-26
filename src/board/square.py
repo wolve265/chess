@@ -29,7 +29,7 @@ class Square(Sprite):
         self.coord = coord
         self.color = self.get_color()
         self.full_rect = self.get_full_rect()
-        self.image = game.font.render(f"", True, Settings.BLACK_COLOR)
+        self.image = game.font.render("", True, Settings.BLACK_COLOR)
         self.rect = self.image.get_rect(center=self.full_rect.center)
         self.defended_by: set[Player] = set()
 
@@ -104,7 +104,7 @@ class Square(Sprite):
         Resets Square image.
         """
         self.color = self.get_color()
-        self.image = game.font.render(f"", True, Settings.BLACK_COLOR)
+        self.image = game.font.render("", True, Settings.BLACK_COLOR)
         self.rect = self.image.get_rect(center=self.full_rect.center)
 
     def turn_render_king_check(self) -> None:
