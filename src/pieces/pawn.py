@@ -1,5 +1,5 @@
+from collections.abc import Iterator
 from pygame.sprite import AbstractGroup
-from typing import Iterator, Optional
 
 from board.coord import Coord
 from board.square import Square
@@ -35,7 +35,7 @@ class Pawn(Piece):
         self.capture_directions = self.capture_directions_dict[is_white]
         self.double_direction = self.double_direction_dict[is_white]
         self.en_passant_directions = self.en_passant_directions_dict[is_white]
-        self.en_passant_square: Optional[Square] = None
+        self.en_passant_square: Square | None = None
 
         # Flags
         self.double_moved = False

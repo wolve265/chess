@@ -1,9 +1,9 @@
+from collections.abc import Sequence
 from pygame.sprite import Group, Sprite, GroupSingle
-from typing import Sequence, Union
 
 
 class Moves(Group):
-    def __init__(self, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
+    def __init__(self, *sprites: Sprite | Sequence[Sprite]) -> None:
         super().__init__(*sprites)
         self.owner = GroupSingle()
 

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 import utils
 
@@ -12,7 +11,7 @@ from game import game
 class GameMove:
     piece: Piece = field()
     destination: Square = field()
-    promotion_piece: Optional[Piece] = field(default=None)
+    promotion_piece: Piece | None = field(default=None)
     notation: str = field(init=False)
 
     def __post_init__(self) -> None:

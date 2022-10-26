@@ -1,9 +1,11 @@
 import pygame
 
+from collections.abc import Iterator
 from pygame.rect import Rect
 from pygame.sprite import AbstractGroup
 from pygame.surface import Surface
-from typing import Any, Iterator
+from typing import Any
+
 
 import utils
 

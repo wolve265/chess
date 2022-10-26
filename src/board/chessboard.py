@@ -1,10 +1,10 @@
 import pygame as pg
 
+from collections.abc import Sequence
 from pygame.event import Event
 from pygame.rect import Rect
 from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
-from typing import Optional, Sequence, Type, Union
 
 from board.col import Col
 from board.row import Row
@@ -31,17 +31,17 @@ class Board(Group):
     Class representing the chessboard
     """
 
-    def __init__(self, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
+    def __init__(self, *sprites: Sprite | Sequence[Sprite]) -> None:
         self.active = False
         self.squares: list[Square] = []
         self.pieces: list[Piece] = []
         self.rows: list[Row] = []
         self.cols: list[Col] = []
-        self.square_pressed: Optional[Square] = None
-        self.square_selected: Optional[Square] = None
-        self.piece_pressed: Optional[Piece] = None
-        self.piece_selected: Optional[Piece] = None
-        self.current_game_move: Optional[GameMove] = None
+        self.square_pressed: Square | None = None
+        self.square_selected: Square | None = None
+        self.piece_pressed: Piece | None = None
+        self.piece_selected: Piece | None = None
+        self.current_game_move: GameMove | None = None
         self.transcript: list[GameMove] = []
         self.setup()
         super().__init__(self.squares, self.pieces, *sprites)
@@ -295,8 +295,8 @@ class Board(Group):
             if piece.move_range < 8:
                 continue
             for direction in piece.directions:
-                piece1: Optional[Piece] = None
-                piece2: Optional[Piece] = None
+                piece1: Piece | None = None
+                piece2: Piece | None = None
                 for square in piece.move_square_generator(direction):
                     piece_target = self.get_piece(square)
                     if not piece_target:
@@ -351,7 +351,7 @@ class Board(Group):
         if len(king_attackers) > 1:
             return
         attacker = king_attackers[0]
-        king: Optional[King] = None
+        king: King | None = None
         for piece in self.pieces:
             if not isinstance(piece, King):
                 continue
@@ -537,8 +537,8 @@ class Board(Group):
         """
         Castles
         """
-        rook: Optional[Rook] = None
-        rook_dst_square: Optional[Square] = None
+        rook: Rook | None = None
+        rook_dst_square: Square | None = None
         for sprite in king.get_row():
             if not isinstance(sprite, Rook):
                 continue
@@ -560,7 +560,7 @@ class Board(Group):
         king.move(king_dst_square)
         rook.move(rook_dst_square)
 
-    def get_user_promotion_type(self) -> Type[Piece]:
+    def get_user_promotion_type(self) -> type[Piece]:
         possible_promotion = {"Q": Queen, "R": Rook, "B": Bishop, "N": Knight}
         ids = possible_promotion.keys()
         while (user_input := input(f"Choose from {[*ids]}")) not in ids:

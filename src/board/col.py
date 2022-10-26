@@ -1,7 +1,7 @@
+from collections.abc import Sequence
 from pygame.rect import Rect
 from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
-from typing import Sequence, Union
 
 import utils
 
@@ -14,7 +14,7 @@ class Col(Group):
     Class representing the board column
     """
 
-    def __init__(self, col_i: int, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
+    def __init__(self, col_i: int, *sprites: Sprite | Sequence[Sprite]) -> None:
         super().__init__(*sprites)
         self.col_i = col_i
         self.col_str = utils.col_int2str(self.col_i)

@@ -1,2 +1,2 @@
-pygame==2.1.2
 multipledispatch==0.6.0
+pygame==2.1.2

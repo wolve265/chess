@@ -1,7 +1,9 @@
 from pygame.rect import Rect
 from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
-from typing import Sequence, Union
+from typing import Union
+
+from collections.abc import Sequence
 
 import utils
 
@@ -14,7 +16,7 @@ class Row(Group):
     Class representing the board row
     """
 
-    def __init__(self, row_i: int, *sprites: Union[Sprite, Sequence[Sprite]]) -> None:
+    def __init__(self, row_i: int, *sprites: Sprite | Sequence[Sprite]) -> None:
         super().__init__(*sprites)
         self.row_i = row_i
         self.row_str = utils.row_int2str(self.row_i)
