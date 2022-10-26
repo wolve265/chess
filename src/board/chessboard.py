@@ -222,7 +222,8 @@ class Board(Group):
         self.update_possible_moves()
         self.update_defended_squares()
         self.update_king_check()
-        self.current_game_move.update_notation()
+        if self.current_game_move:
+            self.current_game_move.update_notation()
         if game.state.check:
             self.update_squares_between_king_and_attacker()
             self.update_possible_moves_after_check()
@@ -313,7 +314,7 @@ class Board(Group):
                     else:
                         piece2 = piece_target
                         break
-                if isinstance(piece2, King):
+                if isinstance(piece2, King) and piece1 is not None:
                     piece1.pinned_directions.add(direction)
                     piece1.pinned_directions.add(direction * Coord(-1, -1))
                     piece1.pinned = True
@@ -407,7 +408,7 @@ class Board(Group):
                 square.render_reset()
 
         self.piece_selected = self.piece_pressed
-        self.get_square(self.piece_selected).render_selection()
+        self.get_square(self.piece_selected).render_selection()  # type: ignore
         for square in self.piece_selected.legal_moves:
             if not isinstance(square, Square):
                 continue
@@ -554,6 +555,8 @@ class Board(Group):
             ):
                 rook = sprite
                 rook_dst_square = self.get_square(king.coord + direction)
+        if rook is None:
+            raise Exception("Impossible that rook is None")
         if abs((king.coord - rook.coord).col_i) > 3:
             game.state.long_castle = True
         else:
