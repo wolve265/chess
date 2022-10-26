@@ -1,6 +1,6 @@
 import os
-import pygame
 
+import pygame as pg
 from pygame.color import Color
 from pygame.surface import Surface
 
@@ -9,7 +9,7 @@ join = os.path.join
 
 
 def load_image(path: str) -> Surface:
-    return pygame.image.load(path).convert_alpha()
+    return pg.image.load(path).convert_alpha()
 
 
 def row_int2str(row_i: int) -> str:

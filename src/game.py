@@ -1,7 +1,7 @@
-import pygame as pg
-
 from dataclasses import dataclass
 from enum import Enum, auto
+
+import pygame as pg
 from pygame.sprite import AbstractGroup
 
 from settings import Settings

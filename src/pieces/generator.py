@@ -1,6 +1,6 @@
 from board.col import Col
-from board.row import Row
 from board.coord import Coord
+from board.row import Row
 from pieces.bishop import Bishop
 from pieces.king import King
 from pieces.knight import Knight

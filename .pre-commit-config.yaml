@@ -19,3 +19,9 @@ repos:
     rev: 5.0.4
     hooks:
     -   id: flake8
+        args: ["--max-line-length", "100"]
+-   repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]

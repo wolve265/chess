@@ -1,6 +1,5 @@
-from popup.base_popup import PopupButtonData, PopupButton, PopupGroup
-
 from events import END_APP, gen_event
+from popup.base_popup import PopupButton, PopupButtonData, PopupGroup
 
 
 class EndGamePopupGroup(PopupGroup):

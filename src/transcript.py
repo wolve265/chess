@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
 
 import utils
-
 from board.square import Square
-from pieces.piece import Piece
 from game import game
+from pieces.piece import Piece
 
 
 @dataclass

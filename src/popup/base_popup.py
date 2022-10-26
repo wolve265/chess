@@ -1,13 +1,13 @@
-import pygame as pg
-
 from dataclasses import dataclass, field
+from typing import Any
+
+import pygame as pg
 from pygame.color import Color
 from pygame.event import Event
 from pygame.font import Font
 from pygame.rect import Rect
-from pygame.sprite import Sprite, Group, AbstractGroup
+from pygame.sprite import AbstractGroup, Group, Sprite
 from pygame.surface import Surface
-from typing import Any
 
 from settings import Settings
 

@@ -1,10 +1,10 @@
 from collections.abc import Sequence
+
 from pygame.rect import Rect
 from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
 
 import utils
-
 from game import game
 from settings import Settings
 

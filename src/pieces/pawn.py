@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+
 from pygame.sprite import AbstractGroup
 
 from board.coord import Coord

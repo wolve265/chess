@@ -1,24 +1,22 @@
-import pygame
-
 from collections.abc import Iterator
+from typing import Any
+
+import pygame
 from pygame.rect import Rect
 from pygame.sprite import AbstractGroup
 from pygame.surface import Surface
-from typing import Any
-
 
 import utils
-
 from board.coord import Coord
 from board.square import Square
-from game import game, Player
+from game import Player, game
 from pieces.moves import (
-    WhiteLegalMoves,
+    BlackCaptures,
+    BlackDefendedSquares,
     BlackLegalMoves,
     WhiteCaptures,
-    BlackCaptures,
     WhiteDefendedSquares,
-    BlackDefendedSquares,
+    WhiteLegalMoves,
 )
 from settings import Settings
 

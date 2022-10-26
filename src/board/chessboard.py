@@ -1,23 +1,27 @@
-import pygame as pg
-
 from collections.abc import Sequence
+
+import pygame as pg
 from pygame.event import Event
 from pygame.rect import Rect
 from pygame.sprite import Group, Sprite
 from pygame.surface import Surface
 
 from board.col import Col
-from board.row import Row
 from board.coord import Coord
+from board.row import Row
 from board.square import Square
-from events import NEXT_ACTION, END_GAME, gen_event
-from game import game
-from game import Action, Player
+from events import END_GAME, NEXT_ACTION, gen_event
+from game import Action, Player, game
 from pieces.bishop import Bishop
-from pieces.moves import WhiteCaptures, BlackCaptures, WhiteDefendedSquares, BlackDefendedSquares
 from pieces.generator import Generator
 from pieces.king import King
 from pieces.knight import Knight
+from pieces.moves import (
+    BlackCaptures,
+    BlackDefendedSquares,
+    WhiteCaptures,
+    WhiteDefendedSquares,
+)
 from pieces.pawn import Pawn
 from pieces.piece import Piece
 from pieces.queen import Queen

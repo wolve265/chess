@@ -1,17 +1,16 @@
-import pygame as pg
+from typing import Any
 
+import pygame as pg
 from pygame import Rect
 from pygame.color import Color
 from pygame.sprite import AbstractGroup, Sprite
 from pygame.surface import Surface
-from typing import Any
 
 import utils
-
 from board.col import Col
-from board.row import Row
 from board.coord import Coord
-from game import game, Player
+from board.row import Row
+from game import Player, game
 from settings import Settings
 
 

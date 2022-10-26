@@ -1,7 +1,7 @@
 import pygame as pg
 
 from board.chessboard import Board
-from events import START_GAME, END_GAME, END_APP
+from events import END_APP, END_GAME, START_GAME
 from game import game
 from popup.endgame import EndGamePopupGroup
 from popup.startgame import StartGamePopupGroup

@@ -1,5 +1,6 @@
 from collections.abc import Sequence
-from pygame.sprite import Group, Sprite, GroupSingle
+
+from pygame.sprite import Group, GroupSingle, Sprite
 
 
 class Moves(Group):
