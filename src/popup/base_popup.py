@@ -20,8 +20,8 @@ class PopupButtonData:
     text: str = "Default Text"
     font_name: str | None = None
     font_size: int = Settings.POPUP_FONT_SIZE
-    text_color: Color = Settings.BLACK_COLOR
-    background_color: Color = Settings.BACKGROUND_COLOR
+    text_color: Color = Settings.BLACK
+    background_color: Color = Settings.BACKGROUND
     text_margin: int = Settings.POPUP_TEXT_MARGIN
     center: tuple[int, int] = get_display_rect().center
     font: Font = field(init=False, repr=False)

@@ -35,6 +35,13 @@ class Settings:
     WINDOW_SIZE: tuple[int, int] = (WINDOW_LEN, WINDOW_LEN)
 
     # Colors
+    BACKGROUND = (92, 104, 81)
+    SQUARE_BLACK = (125, 148, 93)
+    SQUARE_WHITE = (238, 238, 213)
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+
+    # pygame Colors
     BACKGROUND_COLOR = Color(92, 104, 81)
     SQUARE_BLACK_COLOR = Color(125, 148, 93)
     SQUARE_WHITE_COLOR = Color(238, 238, 213)
