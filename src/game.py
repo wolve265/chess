@@ -1,3 +1,4 @@
+import sys
 from dataclasses import dataclass
 from enum import Enum, auto
 
@@ -10,6 +11,9 @@ from settings import Settings
 class Player(Enum):
     WHITE = 1
     BLACK = 0
+
+    def __str__(self) -> str:
+        return f"Player {self.name.capitalize()}"
 
     def opponent(self) -> "Player":
         return Player(not self.value)
@@ -31,6 +35,10 @@ class State:
     check: bool = False
     checkmate: bool = False
     stalemate: bool = False
+
+    @property
+    def end(self) -> bool:
+        return self.checkmate or self.stalemate
 
 
 class Game:
@@ -58,9 +66,8 @@ class Game:
         Sets up game
         """
         self.state.player = Player.WHITE
-        self.counter = 0
+        self.counter = 1
         self.turn_counter = 1
-        print(f"{self.turn_counter:>3}.", end=" ")
 
     def update_at_start_turn(self) -> None:
         game.state.capture = False
@@ -71,12 +78,20 @@ class Game:
         """
         Ends player turn
         """
-        print(f"{move_notation:5}", end=" ")
         if self.counter % 2:
+            sys.stdout.write(f"\n{self.turn_counter:>3}.")
             self.turn_counter += self.counter % 2
-            print(f"\n{self.turn_counter:>3}.", end=" ")
-        self.counter += 1
-        self.state.player = self.state.player.opponent()
+        sys.stdout.write(f" {move_notation}")
+        sys.stdout.flush()
+        if not self.state.end:
+            self.counter += 1
+            self.state.player = self.state.player.opponent()
+
+    def end_game(self) -> None:
+        """
+        Prints end game result
+        """
+        sys.stdout.write(f"\n{self.state.player} wins")
 
 
 game = Game()

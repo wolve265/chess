@@ -15,10 +15,10 @@
 
 # Ideas
 
+- [x] Print after every move (sys.stdout flush)
 - [ ] Checkbox for showing possible moves
 - [ ] Undo move
 - [ ] Threefold repetition (is it needed?)
 - [ ] Coloring last move
 - [ ] Rotating board
 - [ ] Counting material
-- [ ] Print after every move (sys.stdout flush?)

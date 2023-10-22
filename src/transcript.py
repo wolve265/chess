@@ -50,12 +50,12 @@ class GameMove:
         if game.state.short_castle:
             return "O-O"
         capture_sign = "x" if game.state.capture else ""
-        check_sign = "+" if game.state.check else ""
+        check_sign = "+" if (game.state.check and not game.state.checkmate) else ""
         checkmate_sign = "#" if game.state.checkmate else ""
         promotion_sign = self.promotion_piece.id if self.promotion_piece is not None else ""
         return (
             f"{self.piece.id}{src_coord}{capture_sign}{self.destination.coord}"
-            f"{check_sign}{checkmate_sign}{promotion_sign}"
+            f"{promotion_sign}{check_sign}{checkmate_sign}"
         )
 
     def long_algebraic_notation(self, ambiguous_row: bool, ambiguous_col: bool) -> str:

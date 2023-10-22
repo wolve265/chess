@@ -45,7 +45,7 @@ class Board(Group):
         self.square_selected: Square | None = None
         self.piece_pressed: Piece | None = None
         self.piece_selected: Piece | None = None
-        self.current_game_move: GameMove | None = None
+        self.current_game_move: GameMove
         self.transcript: list[GameMove] = []
         self.setup()
         super().__init__(self.squares, self.pieces, *sprites)
@@ -197,12 +197,12 @@ class Board(Group):
             # End turn
             self.set_next_action(Action.SELECT)
             self.perform_end_turn_calculations()
+            self.current_game_move.update_notation()
+            self.transcript.append(self.current_game_move)
+            game.end_player_turn(self.current_game_move.notation)
             if game.state.checkmate or game.state.stalemate:
+                game.end_game()
                 gen_event(END_GAME)
-            else:
-                if self.current_game_move:
-                    self.transcript.append(self.current_game_move)
-                game.end_player_turn(self.current_game_move.notation)
 
     def set_next_action(self, action: Action) -> None:
         """
