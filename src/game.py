@@ -65,6 +65,7 @@ class Game:
         """
         Sets up game
         """
+        self.state = State()
         self.state.player = Player.WHITE
         self.counter = 1
         self.turn_counter = 1
@@ -91,7 +92,7 @@ class Game:
         """
         Prints end game result
         """
-        sys.stdout.write(f"\n{self.state.player} wins")
+        sys.stdout.write(f"\n{self.state.player} won")
 
 
 game = Game()

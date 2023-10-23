@@ -1,7 +1,7 @@
 import pygame as pg
 
 from board.chessboard import Board
-from events import END_APP, END_GAME, START_GAME
+from events import END_APP, END_GAME, MAIN_MENU, START_GAME, gen_event
 from game import game
 from popup.endgame import EndGamePopupGroup
 from popup.startgame import StartGamePopupGroup
@@ -26,7 +26,7 @@ class Chess:
 
     def run(self) -> None:
         self.running = True
-        self.start_popup.active = True
+        gen_event(MAIN_MENU)
         while self.running:
             self.actions()
             self.update()
@@ -41,9 +41,14 @@ class Chess:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.running = False
+            elif event.type == MAIN_MENU:
+                self.board.active = False
+                self.end_popup.active = False
+                self.start_popup.active = True
             elif event.type == START_GAME:
-                self.start_popup.active = False
+                self.board.restart()
                 self.board.active = True
+                self.start_popup.active = False
             elif event.type == END_GAME:
                 self.board.active = False
                 self.end_popup.active = True

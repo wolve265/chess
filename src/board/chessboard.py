@@ -50,6 +50,20 @@ class Board(Group):
         self.setup()
         super().__init__(self.squares, self.pieces, *sprites)
 
+    def restart(self) -> None:
+        for piece in self.pieces:
+            piece.kill()
+        self.pieces.clear()
+        game.pieces.empty()
+        self.reset_squares()
+        pieces_gen = Generator(self.rows, self.cols)
+        self.pieces = pieces_gen.run()
+        game.pieces.add(self.pieces)
+        for piece in self.pieces:
+            piece.setup()
+
+        game.setup()
+
     def setup(self) -> None:
         """
         Sets all up

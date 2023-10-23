@@ -31,6 +31,7 @@ class Piece(Square):
 
     def __init__(self, coord: Coord, is_white: bool, *groups: AbstractGroup) -> None:
         super().__init__(coord, *groups)
+        self.start_coord = coord
         self.id = self.__class__.__name__[0]
         self.is_white = is_white
         self.player = Player.WHITE if is_white else Player.BLACK

@@ -7,6 +7,7 @@
 
 - [x] Welcome screen
 - [x] End screen prototype
+- [x] Restart game
 - [ ] End screen with score
 - [ ] Promotion panel
 - [ ] Settings panel
